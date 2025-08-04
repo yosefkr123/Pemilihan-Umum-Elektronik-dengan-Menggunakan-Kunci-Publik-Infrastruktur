@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Registrasi Berhasil{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto my-8 px-4">
+    <!-- Success Card -->
+    <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
+        <!-- Header Section -->
+        <div class="bg-gradient-to-r from-green-600 to-emerald-700 px-8 py-10 text-center text-white relative">
+            <div class="absolute inset-0 opacity-20 bg-white"></div>
+            <div class="relative z-10">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-full mb-4">
+                    <i class="fas fa-check-circle text-3xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold mb-2">Registrasi Berhasil!</h1>
+                <p class="text-green-100">Selamat datang, {{ nama }}!</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-8 space-y-6">
+            <!-- Verification Status -->
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg flex items-start">
+                <i class="fas fa-user-clock text-blue-500 text-xl mr-3 mt-0.5"></i>
+                <div>
+                    <h3 class="font-medium text-blue-800 mb-1">Status Verifikasi</h3>
+                    <p class="text-sm text-blue-700">
+                        Akun Anda sedang dalam proses verifikasi oleh petugas. 
+                        Anda akan menerima email pemberitahuan ketika akun Anda aktif.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Registration Summary -->
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <h3 class="font-medium text-gray-800">
+                        <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                        Ringkasan Registrasi
+                    </h3>
+                </div>
+                <div class="p-4 bg-white">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Nama Lengkap</p>
+                            <p class="font-medium">{{ nama }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">NIK</p>
+                            <p class="font-medium">{{ nik }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Email</p>
+                            <p class="font-medium">{{ email }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Tanggal Lahir</p>
+                            <p class="font-medium">{{ tanggal_lahir }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Private Key Section -->
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="font-medium text-gray-800">
+                        <i class="fas fa-key mr-2 text-blue-500"></i>
+                        Kunci Privat Anda
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button id="copyKeyBtn" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                            <i class="fas fa-copy mr-1"></i> Salin
+                        </button>
+                        <button id="downloadKeyBtn" class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                            <i class="fas fa-download mr-1"></i> Unduh
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 bg-white">
+                    <div class="bg-gray-50 p-3 rounded-md overflow-x-auto">
+                        <pre id="privateKey" class="text-xs text-gray-800 font-mono">-----BEGIN PRIVATE KEY-----{{ private_key | replace("-----BEGIN PRIVATE KEY-----", "") | replace("-----END PRIVATE KEY-----", "") | trim }}-----END PRIVATE KEY-----</pre>
+                    </div>
+                    <div class="mt-3 flex items-center text-xs text-gray-500">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                        <span>Simpan kunci ini dengan aman. Ini hanya ditampilkan sekali.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 pt-0.5">
+                        <i class="fas fa-shield-alt text-yellow-500 text-xl"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="font-medium text-yellow-800 mb-2">Penting!</h3>
+                        <ul class="text-sm text-yellow-700 space-y-2">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-yellow-500 mr-2 mt-0.5"></i>
+                                <span>Jangan bagikan kunci privat Anda dengan siapapun</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-yellow-500 mr-2 mt-0.5"></i>
+                                <span>Simpan kunci di tempat yang aman dan tidak terhubung internet</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-yellow-500 mr-2 mt-0.5"></i>
+                                <span>Kunci ini diperlukan untuk verifikasi identitas saat voting</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-6">
+                <button id="downloadAllBtn" class="btn-primary flex items-center justify-center">
+                    <i class="fas fa-file-download mr-2"></i>Unduh Semua Data
+                </button>
+                <button onclick="window.print()" class="btn-secondary flex items-center justify-center">
+                    <i class="fas fa-print mr-2"></i>Cetak Halaman
+                </button>
+                <a href="{{ url_for('login') }}" class="btn-tertiary flex items-center justify-center">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Login Sekarang
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Copy Private Key functionality
+    document.getElementById('copyKeyBtn').addEventListener('click', function() {
+        const privateKey = document.getElementById('privateKey').textContent;
+        
+        navigator.clipboard.writeText(privateKey).then(() => {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check mr-1"></i> Tersalin!';
+            this.classList.remove('text-blue-600');
+            this.classList.add('text-green-600');
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.classList.remove('text-green-600');
+                this.classList.add('text-blue-600');
+            }, 2000);
+        });
+    });
+
+    // Download Private Key Only
+    document.getElementById('downloadKeyBtn').addEventListener('click', function() {
+        const privateKey = document.getElementById('privateKey').textContent;
+        const blob = new Blob([privateKey], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `kunci_privat_{{ nik }}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    // Download All Data
+    document.getElementById('downloadAllBtn').addEventListener('click', function() {
+        const privateKey = document.getElementById('privateKey').textContent;
+        
+        const data = {
+            "Nama Lengkap": "{{ nama }}",
+            "NIK": "{{ nik }}",
+            "Email": "{{ email }}",
+            "Tempat Lahir": "{{ tempat_lahir }}",
+            "Tanggal Lahir": "{{ tanggal_lahir }}",
+            "Jenis Kelamin": "{{ jenis_kelamin }}",
+            "Alamat": "{{ alamat }}",
+            "Status Pernikahan": "{{ status_pernikahan }}",
+            "Kunci Privat": privateKey
+        };
+
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `data_registrasi_{{ nik }}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    // Disable right-click to prevent copying
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        alert('Untuk keamanan, fitur klik kanan dinonaktifkan pada halaman ini.');
+    });
+
+    // Disable text selection
+    document.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+    });
+</script>
+
+<style>
+    .btn-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+    }
+    .btn-secondary {
+        background: white;
+        color: #4f46e5;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+        background: #f9fafb;
+        transform: translateY(-1px);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    .btn-tertiary {
+        background: #f3f4f6;
+        color: #4b5563;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .btn-tertiary:hover {
+        background: #e5e7eb;
+        transform: translateY(-1px);
+    }
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+</style>
+{% endblock %}

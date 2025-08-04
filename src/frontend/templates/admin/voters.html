@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Pemilih{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header Section with Gradient Background -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight">Daftar Pemilih Terdaftar</h2>
+                    <p class="text-blue-100 mt-1">Daftar lengkap pemilih yang terdaftar dalam sistem</p>
+                </div>
+                <div class="bg-white bg-opacity-20 p-3 rounded-lg">
+                    <i class="fas fa-users-cog text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="p-6">
+            <!-- Summary Information -->
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-users text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Total Pemilih Terdaftar</p>
+                        <p class="text-lg font-semibold text-gray-800">{{ voters|length }} orang</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <div class="bg-green-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Terverifikasi</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            {{ voters|selectattr('is_verified')|list|length }} orang
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <div class="bg-amber-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-clock text-amber-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Belum Terverifikasi</p>
+                        <p class="text-lg font-semibold text-gray-800">
+                            {{ voters|rejectattr('is_verified')|list|length }} orang
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voters Table -->
+            <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                No</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                Nama Pemilih</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                NIK</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                Status Verifikasi</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for voter in voters %}
+                        <tr class="transition-colors duration-150 hover:bg-gray-50/80">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600">{{ loop.index }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div
+                                        class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-user text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ voter.nama }}</div>
+                                        <div class="text-xs text-gray-500">{{ voter.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-mono">
+                                {{ voter.nik|replace('(.{4})(?!$)', '\\1 ') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span
+                                    class="px-3 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full 
+                                    {% if voter.is_verified %}bg-green-100 text-green-800{% else %}bg-amber-100 text-amber-800{% endif %}">
+                                    {% if voter.is_verified %}
+                                    <i class="fas fa-check-circle mr-1.5 text-xs"></i> Terverifikasi
+                                    {% else %}
+                                    <i class="fas fa-clock mr-1.5 text-xs"></i> Belum Terverifikasi
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <button onclick="showVoterDetails('{{ voter.voter_id }}')"
+                                    class="text-blue-600 hover:text-blue-800 inline-flex items-center">
+                                    <i class="fas fa-eye mr-1.5"></i> Lihat
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div
+                                    class="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                                    <i class="fas fa-user-slash text-gray-400 text-2xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-500 mb-1">Tidak ada pemilih terdaftar</h3>
+                                <p class="text-sm text-gray-400">Data pemilih akan muncul setelah terdaftar dalam sistem
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if voters %}
+            <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="text-sm text-gray-500">
+                    Menampilkan <span class="font-medium">1-{{ voters|length }}</span> dari <span class="font-medium">{{
+                        voters|length }}</span> pemilih
+                </div>
+                <div class="flex space-x-2">
+                    <button
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-chevron-left mr-2"></i> Sebelumnya
+                    </button>
+                    <button
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        Selanjutnya <i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Voter Details -->
+<div id="voterModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden transition-opacity duration-300">
+    <div class="bg-white rounded-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all duration-300 scale-95 opacity-0"
+         id="modalContent">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white sticky top-0 z-10 flex justify-between items-center">
+            <div>
+                <h3 class="text-xl font-bold">Detail Pemilih</h3>
+                <p class="text-blue-100 text-sm mt-1">Informasi lengkap pemilih terdaftar</p>
+            </div>
+            <button onclick="closeModal()" 
+                    class="text-white hover:text-gray-200 transition-colors p-1 rounded-full hover:bg-white hover:bg-opacity-10">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-6" id="voterModalContent">
+            <!-- Loading State -->
+            <div class="text-center py-8 animate-pulse" id="loadingState">
+                <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-user-circle text-blue-500 text-2xl"></i>
+                </div>
+                <p class="text-gray-600 font-medium">Memuat data pemilih...</p>
+                <p class="text-sm text-gray-400 mt-1">Harap tunggu sebentar</p>
+            </div>
+            
+            <!-- Error State (hidden by default) -->
+            <div class="text-center py-8 hidden" id="errorState">
+                <div class="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-exclamation-circle text-red-500 text-2xl"></i>
+                </div>
+                <p class="text-gray-700 font-medium">Gagal memuat data</p>
+                <p class="text-sm text-gray-500 mt-1" id="errorMessage"></p>
+                <button onclick="closeModal()" 
+                        class="mt-4 px-4 py-2 bg-blue-600 rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <i class="fas fa-times mr-2"></i> Tutup
+                </button>
+            </div>
+            
+            <!-- Success State (hidden by default) -->
+            <div class="hidden" id="successState">
+                <div class="flex flex-col md:flex-row gap-6 mb-6">
+                    <!-- Profile Section -->
+                    <div class="flex items-center md:items-start space-x-4 md:space-x-0 md:flex-col md:space-y-4">
+                        <div class="w-20 h-20 md:w-32 md:h-32 bg-blue-100 rounded-full flex items-center justify-center shrink-0">
+                            <i class="fas fa-user text-blue-500 text-3xl md:text-5xl"></i>
+                        </div>
+                        <div class="md:text-center">
+                            <h4 class="font-bold text-gray-800 text-lg" id="voterName"></h4>
+                            <span class="text-sm px-3 py-1 rounded-full mt-1 inline-block" id="verificationBadge"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Basic Info -->
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">NIK</p>
+                            <p class="font-mono text-gray-800" id="voterNik"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">ID Pemilih</p>
+                            <p class="font-mono text-gray-800 text-sm" id="voterId"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Tempat/Tgl Lahir</p>
+                            <p class="text-gray-800" id="voterBirth"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Jenis Kelamin</p>
+                            <p class="text-gray-800" id="voterGender"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="border-t border-gray-200 my-4"></div>
+                
+                <!-- Contact Info -->
+                <div class="mb-6">
+                    <h4 class="font-bold text-gray-800 text-lg mb-3 flex items-center">
+                        <i class="fas fa-address-card text-blue-500 mr-2"></i> Kontak & Alamat
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Alamat</p>
+                            <p class="text-gray-800" id="voterAddress"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Status Pernikahan</p>
+                            <p class="text-gray-800" id="voterMaritalStatus"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Email</p>
+                            <p class="text-gray-800 break-all" id="voterEmail"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Registration Info -->
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <h4 class="font-bold text-gray-800 text-lg mb-2 flex items-center">
+                        <i class="fas fa-calendar-check text-blue-500 mr-2"></i> Informasi Pendaftaran
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Tanggal Pendaftaran</p>
+                            <p class="text-gray-800" id="registrationDate"></p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider">Status Akun</p>
+                            <p class="text-gray-800" id="accountStatus"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-6 flex justify-end">
+                    <button onclick="closeModal()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                        <i class="fas fa-times mr-2"></i> Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to open modal with animation
+    function showVoterDetails(voterId) {
+        const modal = document.getElementById('voterModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        // Reset states
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('errorState').classList.add('hidden');
+        document.getElementById('successState').classList.add('hidden');
+        
+        // Show modal with animation
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+        }, 10);
+        
+        // Disable body scroll
+        document.body.classList.add('overflow-hidden');
+        
+        // Fetch voter details
+        fetch(`/get_voter_details/${voterId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    const voter = data.voter;
+                    
+                    // Format the date
+                    const registeredDate = new Date(voter.registered_at);
+                    const formattedDate = registeredDate.toLocaleDateString('id-ID', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    // Update DOM elements
+                    document.getElementById('voterName').textContent = voter.nama;
+                    document.getElementById('voterNik').textContent = voter.nik;
+                    document.getElementById('voterId').textContent = voter.voter_id;
+                    document.getElementById('voterBirth').textContent = `${voter.tempat_lahir}, ${voter.tanggal_lahir}`;
+                    document.getElementById('voterGender').textContent = voter.jenis_kelamin;
+                    document.getElementById('voterAddress').textContent = voter.alamat;
+                    document.getElementById('voterMaritalStatus').textContent = voter.status_pernikahan;
+                    document.getElementById('voterEmail').textContent = voter.email;
+                    document.getElementById('registrationDate').textContent = formattedDate;
+                    document.getElementById('accountStatus').textContent = voter.is_active ? 'Aktif' : 'Belum Aktif';
+                    
+                    // Set verification badge
+                    const badge = document.getElementById('verificationBadge');
+                    badge.textContent = voter.is_active ? 'Terverifikasi' : 'Belum Terverifikasi';
+                    badge.className = `text-sm px-3 py-1 rounded-full mt-1 inline-block ${
+                        voter.is_active ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                    }`;
+                    
+                    // Show success state
+                    document.getElementById('loadingState').classList.add('hidden');
+                    document.getElementById('successState').classList.remove('hidden');
+                } else {
+                    showError(data.message || 'Gagal memuat data pemilih');
+                }
+            })
+            .catch(error => {
+                showError(error.message || 'Terjadi kesalahan saat memuat data');
+            });
+    }
+    
+    // Function to show error state
+    function showError(message) {
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('errorMessage').textContent = message;
+        document.getElementById('errorState').classList.remove('hidden');
+    }
+    
+    // Function to close modal with animation
+    function closeModal() {
+        const modal = document.getElementById('voterModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        modalContent.classList.remove('scale-100', 'opacity-100');
+        modalContent.classList.add('scale-95', 'opacity-0');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }, 300);
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('voterModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

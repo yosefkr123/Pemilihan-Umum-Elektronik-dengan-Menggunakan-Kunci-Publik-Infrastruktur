@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}Hasil Tabulasi Pemilihan{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Error Message -->
+    {% if error %}
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-lg shadow">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Gagal Memuat Data</h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <p>{{ error }}</p>
+                    <p class="mt-1">Silakan coba lagi atau hubungi administrator sistem.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Data Container -->
+    <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-4 text-white">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold">HASIL TABULASI PEMILIHAN</h2>
+                    <div class="flex items-center mt-1 space-x-4">
+                        <!-- Di bagian header -->
+                        <p class="text-blue-100 text-sm mt-1">
+                            <span class="font-medium">Update terakhir:</span>
+                            {{ tabulasi.last_updated if tabulasi.last_updated else current_time.strftime('%d %B %Y
+                            %H:%M:%S') }}
+                        </p>
+                        <span class="text-xs bg-blue-400 px-2 py-1 rounded-full">
+                            {% if tabulasi.election_status == 'ongoing' %}
+                            PEMILIHAN BERLANGSUNG
+                            {% elif tabulasi.election_status == 'upcoming' %}
+                            MENUNGGU PEMILIHAN
+                            {% elif tabulasi.election_status == 'ended' %}
+                            PEMILIHAN SELESAI
+                            {% else %}
+                            STATUS TIDAK DIKETAHUI
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="bg-blue-500 rounded-full p-3 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <!-- Total Voters -->
+                <div
+                    class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4 shadow-inner">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Pemilih Terdaftar</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ tabulasi.total_voters|default(0) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valid Votes -->
+                <div
+                    class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 p-3 rounded-full mr-4 shadow-inner">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Suara Sah</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ tabulasi.total_valid_votes|default(0) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invalid Votes -->
+                <div
+                    class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 p-3 rounded-full mr-4 shadow-inner">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Suara Tidak Sah</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ tabulasi.invalid_votes|default(0) }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voter Turnout -->
+                <div
+                    class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 p-3 rounded-full mr-4 shadow-inner">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Tingkat Partisipasi</p>
+                            <p class="text-3xl font-bold text-gray-800">
+                                {% if tabulasi.total_voters > 0 %}
+                                {{ ((tabulasi.total_votes_cast / tabulasi.total_voters) * 100)|round(1) }}%
+                                {% else %}
+                                0%
+                                {% endif %}
+                            </p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                {{ tabulasi.total_votes_cast|default(0) }} dari {{ tabulasi.total_voters|default(0) }}
+                                pemilih
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Table -->
+            {% if tabulasi.candidates %}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Charts Column -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Pie Chart -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Distribusi Suara Sah</h3>
+                            <div class="flex space-x-2">
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Live Data</span>
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                    Total: {{ tabulasi.total_valid_votes|default(0) }} suara
+                                </span>
+                            </div>
+                        </div>
+                        <div class="h-80">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-500">
+                            <p>Diagram ini menunjukkan persentase suara sah yang diperoleh setiap kandidat.</p>
+                        </div>
+                    </div>
+
+                    <!-- Bar Chart -->
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Perbandingan Jumlah Suara</h3>
+                            <div class="flex space-x-2">
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Analisis</span>
+                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                                    {{ tabulasi.candidates|length }} Kandidat
+                                </span>
+                            </div>
+                        </div>
+                        <div class="h-80">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-500">
+                            <p>Grafik batang ini membandingkan jumlah suara sah yang diperoleh setiap kandidat.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table Column -->
+                <div>
+                    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm sticky top-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Detail Perolehan Suara</h3>
+                            <div class="flex space-x-2">
+                                <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">Rekap</span>
+                                <span class="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
+                                    {{ tabulasi.candidates|length }} Kandidat
+                                </span>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            No</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Kandidat</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Suara</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            %</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    {% for candidate in tabulasi.candidates %}
+                                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{
+                                            candidate.nomor_urut }}</td>
+                                        <td class="px-4 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <img class="h-10 w-10 rounded-full object-cover border border-gray-200"
+                                                        src="{{ url_for('static', filename='candidate_photos/' + candidate.photo_url) }}"
+                                                        alt="{{ candidate.nama }}">
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">{{ candidate.nama }}
+                                                    </div>
+                                                    <div class="text-sm text-gray-500">{{ candidate.partai }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            <span
+                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                {{ candidate.vote_count }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {% if tabulasi.total_valid_votes > 0 %}
+                                            {{ ((candidate.vote_count / tabulasi.total_valid_votes) * 100)|round(1) }}%
+                                            {% else %}
+                                            0%
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 text-sm text-gray-500">
+                            <p>Tabel ini menampilkan rincian perolehan suara sah untuk setiap kandidat.</p>
+                            <p class="mt-1 text-xs bg-gray-50 p-2 rounded">
+                                <span class="font-medium">Catatan:</span> Persentase dihitung dari total suara sah.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            Data kandidat tidak tersedia. Silakan coba beberapa saat lagi.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if not error and tabulasi.candidates %}
+        const candidates = {{ tabulasi.candidates| tojson
+    }};
+    const totalValidVotes = {{ tabulasi.total_valid_votes|default (0) }};
+
+    // Sort candidates by votes (descending)
+    candidates.sort((a, b) => b.vote_count - a.vote_count);
+
+    // Prepare chart data
+    const labels = candidates.map(c => `${c.nomor_urut}. ${c.nama}`);
+    const data = candidates.map(c => c.vote_count);
+    const backgroundColors = [
+        '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+        '#EC4899', '#14B8A6', '#F97316', '#64748B', '#84CC16'
+    ];
+
+    // Pie Chart
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: backgroundColors,
+                borderWidth: 1,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 20,
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 14
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const percentage = totalValidVotes > 0
+                                ? (context.raw / totalValidVotes * 100).toFixed(1)
+                                : 0;
+                            return `${context.label}: ${context.raw} suara (${percentage}%)`;
+                        }
+                    },
+                    bodyFont: {
+                        family: "'Inter', sans-serif",
+                        size: 14
+                    },
+                    displayColors: true,
+                    usePointStyle: true
+                }
+            },
+            cutout: '60%',
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        }
+    });
+
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jumlah Suara Sah',
+                data: data,
+                backgroundColor: backgroundColors.map(c => c + 'CC'),
+                borderColor: backgroundColors,
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        color: '#e5e7eb'
+                    },
+                    ticks: {
+                        font: {
+                            family: "'Inter', sans-serif"
+                        },
+                        callback: function (value) {
+                            return value.toLocaleString();
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            family: "'Inter', sans-serif"
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.dataset.label}: ${context.raw.toLocaleString()}`;
+                        }
+                    },
+                    bodyFont: {
+                        family: "'Inter', sans-serif",
+                        size: 14
+                    }
+                }
+            },
+            animation: {
+                duration: 1000
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

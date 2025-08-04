@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Hasil Verifikasi{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden card">
+        <div class="bg-gradient-primary p-6 text-white">
+            <h2 class="text-2xl font-bold">Hasil Verifikasi</h2>
+            <p class="text-white text-opacity-80">Data pemilih yang terverifikasi</p>
+        </div>
+        <div class="p-6">
+            <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-700">
+                            <strong>Pemilih valid!</strong> Data berikut dapat melanjutkan proses pemilihan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Nama</p>
+                    <p class="text-lg font-semibold">{{ voter.nama }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">NIK</p>
+                    <p class="text-lg font-semibold">{{ voter.nik }}</p>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">ID Pemilih</p>
+                    <p class="text-lg font-semibold">{{ voter.voter_id }}</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-between">
+                <a href="{{ url_for('verify_voter') }}" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition">
+                    <i class="fas fa-arrow-left mr-2"></i>Kembali
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn-primary text-white px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-home mr-2"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,533 @@
+{% extends "base.html" %}
+
+{% block title %}Registrasi Pemilih{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto my-8 px-4">
+    <!-- Crypto Warning (hidden by default) -->
+    <div id="cryptoWarning" class="hidden bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-r-lg">
+        <div class="flex items-start">
+            <div class="flex-shrink-0 pt-0.5">
+                <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-lg font-medium text-red-800">Browser Tidak Didukung</h3>
+                <div class="mt-1 text-sm text-red-700">
+                    <p>Browser Anda tidak mendukung fitur keamanan yang diperlukan untuk registrasi.</p>
+                    <p class="mt-1">Silakan gunakan Chrome, Firefox, atau Edge versi terbaru.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Card -->
+    <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100">
+        <!-- Header Section -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-10 text-center text-white relative">
+            <div class="absolute inset-0 opacity-20 bg-white"></div>
+            <div class="relative z-10">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-white bg-opacity-20 rounded-full mb-4">
+                    <i class="fas fa-user-edit text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold mb-2">Registrasi Pemilih</h1>
+                <p class="text-blue-100">Lengkapi data diri Anda sesuai KTP</p>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="p-8">
+            <form id="registrationForm" method="POST" class="space-y-6">
+                {% if error %}
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg flex items-start">
+                    <i class="fas fa-exclamation-circle text-red-500 mr-3 mt-0.5"></i>
+                    <div>
+                        <p class="text-red-700">{{ error }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Personal Information Section -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">
+                        <i class="fas fa-id-card mr-2 text-blue-500"></i>Data Pribadi
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- NIK Field -->
+                        <div>
+                            <label for="nik" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-id-badge mr-1 text-blue-500"></i>NIK
+                            </label>
+                            <input type="text" id="nik" name="nik" required pattern="[0-9]{16}"
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                                title="NIK harus 16 digit angka" maxlength="16" placeholder="Masukkan 16 digit NIK">
+                            <div id="nikError" class="text-red-500 text-sm mt-1 hidden">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                <span>NIK harus 16 digit angka</span>
+                            </div>
+                        </div>
+
+                        <!-- Full Name Field -->
+                        <div>
+                            <label for="nama" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-user mr-1 text-blue-500"></i>Nama Lengkap
+                            </label>
+                            <input type="text" id="nama" name="nama" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                                placeholder="Nama sesuai KTP">
+                            <div id="nameError" class="text-red-500 text-sm mt-1 hidden">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                <span>Nama harus minimal 3 karakter</span>
+                            </div>
+                        </div>
+
+                        <!-- Birth Place Field -->
+                        <div>
+                            <label for="tempat_lahir" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-map-marker-alt mr-1 text-blue-500"></i>Tempat Lahir
+                            </label>
+                            <input type="text" id="tempat_lahir" name="tempat_lahir" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                                placeholder="Kota kelahiran">
+                        </div>
+
+                        <!-- Birth Date Field -->
+                        <div>
+                            <label for="tanggal_lahir" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-calendar-alt mr-1 text-blue-500"></i>Tanggal Lahir
+                            </label>
+                            <input type="date" id="tanggal_lahir" name="tanggal_lahir" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition">
+                            <div id="ageError" class="text-red-500 text-sm mt-1 hidden">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                <span>Minimal 17 tahun</span>
+                            </div>
+                        </div>
+
+                        <!-- Gender Field -->
+                        <div>
+                            <label for="jenis_kelamin" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-venus-mars mr-1 text-blue-500"></i>Jenis Kelamin
+                            </label>
+                            <select id="jenis_kelamin" name="jenis_kelamin" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition">
+                                <option value="">Pilih Jenis Kelamin</option>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
+
+                        <!-- Marital Status Field -->
+                        <div>
+                            <label for="status_pernikahan" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-heart mr-1 text-blue-500"></i>Status Pernikahan
+                            </label>
+                            <select id="status_pernikahan" name="status_pernikahan" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition">
+                                <option value="">Pilih Status</option>
+                                <option value="BELUM KAWIN">Belum Kawin</option>
+                                <option value="KAWIN">Kawin</option>
+                                <option value="CERAI HIDUP">Cerai Hidup</option>
+                                <option value="CERAI MATI">Cerai Mati</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Address Field -->
+                    <div>
+                        <label for="alamat" class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-home mr-1 text-blue-500"></i>Alamat Lengkap
+                        </label>
+                        <textarea id="alamat" name="alamat" rows="3" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                            placeholder="Alamat sesuai KTP"></textarea>
+                    </div>
+                </div>
+
+                <!-- Account Information Section -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">
+                        <i class="fas fa-user-shield mr-2 text-blue-500"></i>Informasi Akun
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Email Field -->
+                        <div>
+                            <label for="email" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-envelope mr-1 text-blue-500"></i>Email
+                            </label>
+                            <input type="email" id="email" name="email" required
+                                class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                                placeholder="email@contoh.com">
+                            <div id="emailError" class="text-red-500 text-sm mt-1 hidden">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                <span>Format email tidak valid</span>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div>
+                            <label for="password" class="block text-gray-700 font-medium mb-2">
+                                <i class="fas fa-lock mr-1 text-blue-500"></i>Password
+                            </label>
+                            <div class="relative">
+                                <input type="password" id="password" name="password" required minlength="8"
+                                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition pr-10"
+                                    placeholder="Minimal 8 karakter">
+                                <button type="button" onclick="togglePassword('password')"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-blue-600 transition">
+                                    <i class="fas fa-eye" id="passwordToggleIcon"></i>
+                                </button>
+                            </div>
+                            <div id="passwordError" class="text-red-500 text-sm mt-1 hidden">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                <span>Password minimal 8 karakter</span>
+                            </div>
+                            <div class="password-strength mt-2">
+                                <div class="flex items-center space-x-1">
+                                    <div class="h-1.5 w-1/4 bg-gray-200 rounded-full" id="strength1"></div>
+                                    <div class="h-1.5 w-1/4 bg-gray-200 rounded-full" id="strength2"></div>
+                                    <div class="h-1.5 w-1/4 bg-gray-200 rounded-full" id="strength3"></div>
+                                    <div class="h-1.5 w-1/4 bg-gray-200 rounded-full" id="strength4"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1" id="strengthText">Kekuatan password</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="pt-4">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="terms" name="terms" type="checkbox" required
+                                class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="terms" class="font-medium text-gray-700">
+                                Saya menyetujui syarat dan ketentuan
+                            </label>
+                            <p class="text-gray-500 mt-1">Dengan mendaftar, Anda menyetujui kebijakan privasi dan
+                                persyaratan layanan kami.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex flex-col sm:flex-row items-center justify-between pt-6 space-y-4 sm:space-y-0">
+                    <a href="{{ url_for('login') }}"
+                        class="text-blue-600 hover:text-blue-800 text-sm font-medium transition flex items-center">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Sudah punya akun? Masuk disini
+                    </a>
+                    <button type="submit" id="submitBtn"
+                        class="btn-primary px-6 py-3 rounded-lg font-medium flex items-center justify-center w-full sm:w-auto">
+                        <i class="fas fa-user-plus mr-2"></i>Daftar Sekarang
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Check crypto support on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        const today = new Date();
+        const minDate = new Date();
+        minDate.setFullYear(today.getFullYear() - 17);
+        document.getElementById('tanggal_lahir').max = minDate.toISOString().split('T')[0];
+
+        if (!window.crypto || !window.crypto.subtle) {
+            document.getElementById('cryptoWarning').classList.remove('hidden');
+            document.getElementById('submitBtn').disabled = true;
+        }
+    });
+
+    // Toggle password visibility
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(fieldId + 'ToggleIcon');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    async function generateKeyPair() {
+        try {
+            const keyPair = await window.crypto.subtle.generateKey(
+                {
+                    name: "RSA-PSS",
+                    modulusLength: 2048,
+                    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+                    hash: "SHA-256",
+                },
+                true,
+                ["sign", "verify"]
+            );
+
+            const [publicKey, privateKey] = await Promise.all([
+                window.crypto.subtle.exportKey("spki", keyPair.publicKey),
+                window.crypto.subtle.exportKey("pkcs8", keyPair.privateKey)
+            ]);
+
+            return {
+                publicKey: `-----BEGIN PUBLIC KEY-----${arrayBufferToBase64(publicKey)}-----END PUBLIC KEY-----`,
+                privateKey: `-----BEGIN PRIVATE KEY-----${arrayBufferToBase64(privateKey)}-----END PRIVATE KEY-----`
+            };
+        } catch (error) {
+            console.error('Key generation error:', error);
+            throw new Error('Gagal membuat kunci keamanan');
+        }
+    }
+
+    // Konversi ArrayBuffer ke Base64
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    }
+
+    // Form validation
+    function validateForm() {
+        let isValid = true;
+
+        // NIK validation
+        const nik = document.getElementById('nik');
+        if (!/^\d{16}$/.test(nik.value)) {
+            document.getElementById('nikError').classList.remove('hidden');
+            nik.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            document.getElementById('nikError').classList.add('hidden');
+            nik.classList.remove('border-red-500');
+        }
+
+        // Name validation
+        const name = document.getElementById('nama');
+        if (name.value.length < 3) {
+            document.getElementById('nameError').classList.remove('hidden');
+            name.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            document.getElementById('nameError').classList.add('hidden');
+            name.classList.remove('border-red-500');
+        }
+
+        // Email validation
+        const email = document.getElementById('email');
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+            document.getElementById('emailError').classList.remove('hidden');
+            email.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            document.getElementById('emailError').classList.add('hidden');
+            email.classList.remove('border-red-500');
+        }
+
+        // Password validation
+        const password = document.getElementById('password');
+        if (password.value.length < 8) {
+            document.getElementById('passwordError').classList.remove('hidden');
+            password.classList.add('border-red-500');
+            isValid = false;
+        } else {
+            document.getElementById('passwordError').classList.add('hidden');
+            password.classList.remove('border-red-500');
+        }
+
+        // Birth date validation
+        const birthDate = new Date(document.getElementById('tanggal_lahir').value);
+        const minDate = new Date();
+        minDate.setFullYear(minDate.getFullYear() - 17);
+        if (birthDate > minDate) {
+            document.getElementById('ageError').classList.remove('hidden');
+            document.getElementById('tanggal_lahir').classList.add('border-red-500');
+            isValid = false;
+        } else {
+            document.getElementById('ageError').classList.add('hidden');
+            document.getElementById('tanggal_lahir').classList.remove('border-red-500');
+        }
+
+        // Terms checkbox validation
+        if (!document.getElementById('terms').checked) {
+            alert('Anda harus menyetujui syarat dan ketentuan');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    // Update password strength meter
+    function updatePasswordStrength(password) {
+        let strength = 0;
+
+        // Length check
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+
+        // Complexity checks
+        if (/[A-Z]/.test(password)) strength++;
+        if (/\d/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        // Reset all
+        ['strength1', 'strength2', 'strength3', 'strength4'].forEach(id => {
+            document.getElementById(id).classList.remove(
+                'bg-red-500', 'bg-yellow-500', 'bg-green-500', 'bg-green-600'
+            );
+        });
+
+        // Update based on strength
+        if (password.length === 0) {
+            document.getElementById('strengthText').textContent = "Kekuatan password";
+            document.getElementById('strengthText').className = "text-xs text-gray-500 mt-1";
+        } else if (strength < 2) {
+            document.getElementById('strength1').classList.add('bg-red-500');
+            document.getElementById('strengthText').textContent = "Lemah";
+            document.getElementById('strengthText').className = "text-xs text-red-500 mt-1";
+        } else if (strength < 4) {
+            document.getElementById('strength1').classList.add('bg-yellow-500');
+            document.getElementById('strength2').classList.add('bg-yellow-500');
+            document.getElementById('strengthText').textContent = "Sedang";
+            document.getElementById('strengthText').className = "text-xs text-yellow-500 mt-1";
+        } else if (strength < 6) {
+            document.getElementById('strength1').classList.add('bg-green-500');
+            document.getElementById('strength2').classList.add('bg-green-500');
+            document.getElementById('strength3').classList.add('bg-green-500');
+            document.getElementById('strengthText').textContent = "Kuat";
+            document.getElementById('strengthText').className = "text-xs text-green-500 mt-1";
+        } else {
+            document.getElementById('strength1').classList.add('bg-green-600');
+            document.getElementById('strength2').classList.add('bg-green-600');
+            document.getElementById('strength3').classList.add('bg-green-600');
+            document.getElementById('strength4').classList.add('bg-green-600');
+            document.getElementById('strengthText').textContent = "Sangat kuat";
+            document.getElementById('strengthText').className = "text-xs text-green-600 mt-1";
+        }
+    }
+
+    // Password strength real-time update
+    document.getElementById('password').addEventListener('input', function () {
+        updatePasswordStrength(this.value);
+    });
+
+    // Form submission handler
+    document.getElementById('registrationForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('submitBtn');
+        const originalBtnText = submitBtn.innerHTML;
+
+        try {
+            // Validasi form
+            if (!validateForm()) {
+                return;
+            }
+
+            // Tampilkan loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Membuat kunci...';
+
+            // Generate keys
+            const keys = await generateKeyPair();
+
+            // Bersihkan format kunci - hilangkan semua newlines dan whitespace
+            const cleanPrivateKey = keys.privateKey
+                .replace(/-----BEGIN PRIVATE KEY-----/g, '')
+                .replace(/-----END PRIVATE KEY-----/g, '')
+                .replace(/\s+/g, '')
+                .trim();
+                
+            const cleanPublicKey = keys.publicKey
+                .replace(/-----BEGIN PUBLIC KEY-----/g, '')
+                .replace(/-----END PUBLIC KEY-----/g, '')
+                .replace(/\s+/g, '')
+                .trim();
+
+            // Format kunci tanpa line breaks di antara BEGIN/END
+            addHiddenField('public_key', `-----BEGIN PUBLIC KEY-----${cleanPublicKey}-----END PUBLIC KEY-----`);
+            addHiddenField('private_key', `-----BEGIN PRIVATE KEY-----${cleanPrivateKey}-----END PRIVATE KEY-----`);
+
+            // Submit form
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mendaftarkan...';
+            this.submit();
+
+        } catch (error) {
+            console.error('Error:', error);
+            
+            // Tampilkan pesan error secara visual
+            const errorContainer = document.createElement('div');
+            errorContainer.className = 'bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg flex items-start';
+            errorContainer.innerHTML = `
+                <i class="fas fa-exclamation-circle text-red-500 mr-3 mt-0.5"></i>
+                <div>
+                    <p class="text-red-700">${error.message || 'Terjadi kesalahan saat registrasi'}</p>
+                </div>
+            `;
+            
+            // Masukkan error message di atas form
+            const form = document.getElementById('registrationForm');
+            form.insertBefore(errorContainer, form.firstChild);
+            
+            // Scroll ke atas untuk menampilkan error
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    });
+
+    function addHiddenField(name, value) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        document.getElementById('registrationForm').appendChild(input);
+    }
+</script>
+
+<style>
+    .btn-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .border-red-500 {
+        border-color: #ef4444;
+    }
+
+    input,
+    select,
+    textarea {
+        transition: all 0.2s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Verifikasi Kunci Privat{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Verifikasi Kunci Privat
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+            Masukkan kunci privat Anda untuk verifikasi (proses sepenuhnya di perangkat Anda)
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            <!-- Error messages -->
+            <div id="errorAlert" class="hidden mb-4 rounded-md bg-red-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p id="errorMessage" class="text-sm font-medium text-red-800"></p>
+                    </div>
+                </div>
+            </div>
+
+            <form id="privateKeyForm" class="space-y-6">
+                <div>
+                    <label for="private_key" class="block text-sm font-medium text-gray-700">
+                        Kunci Privat Anda
+                    </label>
+                    <div class="mt-1 relative">
+                        <textarea id="private_key" name="private_key" rows="12" required
+                            class="font-mono text-xs appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 whitespace-pre-wrap break-all"
+                            placeholder="-----BEGIN PRIVATE KEY-----
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKj...
+-----END PRIVATE KEY-----"
+                            spellcheck="false"></textarea>
+                        <button type="button" id="toggleVisibility" class="absolute top-2 right-2 p-1 rounded-md bg-gray-100 hover:bg-gray-200">
+                            <svg id="eyeIcon" class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
+                                <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">
+                        Kunci ini diberikan saat registrasi. Tidak akan dikirim ke server manapun.
+                    </p>
+                </div>
+
+                <div>
+                    <button type="button" id="verifyBtn"
+                        class="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Verifikasi Kunci
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const privateKeyField = document.getElementById('private_key');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const toggleBtn = document.getElementById('toggleVisibility');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const errorAlert = document.getElementById('errorAlert');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    let isMasked = true;
+    
+    // Initialize masked state
+    privateKeyField.style.webkitTextSecurity = 'disc';
+    privateKeyField.style.textSecurity = 'disc';
+    
+    // Toggle visibility
+    toggleBtn.addEventListener('click', function() {
+        isMasked = !isMasked;
+        if (isMasked) {
+            privateKeyField.style.webkitTextSecurity = 'disc';
+            privateKeyField.style.textSecurity = 'disc';
+            eyeIcon.innerHTML = `
+                <path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clip-rule="evenodd" />
+                <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+            `;
+        } else {
+            privateKeyField.style.webkitTextSecurity = 'none';
+            privateKeyField.style.textSecurity = 'none';
+            eyeIcon.innerHTML = `
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+            `;
+        }
+    });
+
+    // Show error message
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorAlert.classList.remove('hidden');
+        setTimeout(() => {
+            errorAlert.classList.add('hidden');
+        }, 5000);
+    }
+
+    // Convert ArrayBuffer to Base64
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+    }
+
+    // Convert Base64 to ArrayBuffer
+    function base64ToArrayBuffer(base64) {
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    // Import private key
+    async function importPrivateKey(pem) {
+        try {
+            const pemContents = pem
+                .replace('-----BEGIN PRIVATE KEY-----', '')
+                .replace('-----END PRIVATE KEY-----', '')
+                .replace(/\s+/g, '');
+            
+            const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
+            
+            return await crypto.subtle.importKey(
+                'pkcs8',
+                binaryDer,
+                { 
+                    name: 'RSASSA-PKCS1-v1_5',
+                    hash: { name: 'SHA-256' }
+                },
+                false,
+                ['sign']
+            );
+        } catch (e) {
+            console.error("Key import error:", e);
+            throw new Error('Format private key tidak valid');
+        }
+    }
+
+    // Verify private key format
+    function validatePrivateKey(key) {
+        return key.includes("-----BEGIN PRIVATE KEY-----") && 
+               key.includes("-----END PRIVATE KEY-----") &&
+               key.length > 100;
+    }
+
+    // Sign data
+    async function signData(privateKey, data) {
+        try {
+            const signature = await crypto.subtle.sign(
+                { name: 'RSASSA-PKCS1-v1_5' },
+                privateKey,
+                new TextEncoder().encode(data)
+            );
+            return arrayBufferToBase64(signature);
+        } catch (error) {
+            console.error("Signing error:", error);
+            throw new Error('Gagal membuat signature');
+        }
+    }
+
+    // Verify signature client-side
+    async function verifySignatureClientSide(publicKeyPem, data, signature) {
+        try {
+            const pemContents = publicKeyPem
+                .replace('-----BEGIN PUBLIC KEY-----', '')
+                .replace('-----END PUBLIC KEY-----', '')
+                .replace(/\s+/g, '');
+            
+            const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
+            
+            const publicKey = await crypto.subtle.importKey(
+                'spki',
+                binaryDer,
+                { 
+                    name: 'RSASSA-PKCS1-v1_5',
+                    hash: { name: 'SHA-256' }
+                },
+                false,
+                ['verify']
+            );
+            
+            return await crypto.subtle.verify(
+                { name: 'RSASSA-PKCS1-v1_5' },
+                publicKey,
+                base64ToArrayBuffer(signature),
+                new TextEncoder().encode(data)
+            );
+        } catch (e) {
+            console.error("Verification error:", e);
+            return false;
+        }
+    }
+
+    // Handle verification
+verifyBtn.addEventListener('click', async function() {
+    try {
+        // 1. Validasi private key
+        const privateKey = privateKeyField.value.trim();
+        if (!privateKey.includes("-----BEGIN PRIVATE KEY-----") || 
+            !privateKey.includes("-----END PRIVATE KEY-----")) {
+            throw new Error("Format private key tidak valid");
+        }
+
+        // 2. Persiapkan data verifikasi
+        const verificationData = {
+            voter_id: '{{ session["voter_data"]["voter_id"] }}',
+            timestamp: Math.floor(Date.now() / 1000),
+            nonce: crypto.getRandomValues(new Uint8Array(16)).join('')
+        };
+        
+        // 3. Stringify dengan urutan field tetap
+        const dataStr = JSON.stringify({
+            voter_id: verificationData.voter_id,
+            timestamp: verificationData.timestamp,
+            nonce: verificationData.nonce
+        });
+
+        console.log("Data yang di-sign:", dataStr);
+
+        // 4. Import private key
+        const pemContents = privateKey
+            .replace('-----BEGIN PRIVATE KEY-----', '')
+            .replace('-----END PRIVATE KEY-----', '')
+            .replace(/\s+/g, '');
+        const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
+        
+        const privateKeyObj = await crypto.subtle.importKey(
+            'pkcs8',
+            binaryDer,
+            { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+            false,
+            ['sign']
+        );
+
+        // 5. Buat signature
+        const signature = await crypto.subtle.sign(
+            { name: 'RSASSA-PKCS1-v1_5' },
+            privateKeyObj,
+            new TextEncoder().encode(dataStr)
+        );
+        
+        // 6. Convert signature ke Base64
+        const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)));
+
+        // 7. Buat token
+        const token = btoa(JSON.stringify({
+            data: dataStr,
+            signature: signatureB64,
+            timestamp: verificationData.timestamp,
+            voter_id: verificationData.voter_id
+        }));
+
+        // 8. Redirect dengan token
+        window.location.href = `{{ url_for('vote') }}?verified=1&token=${encodeURIComponent(token)}`;
+
+    } catch (error) {
+        console.error("Verification error:", error);
+        alert("Verifikasi gagal: " + error.message);
+    }
+});
+
+    // Check crypto support
+    if (!window.crypto?.subtle?.importKey) {
+        showError('Browser tidak mendukung fitur kriptografi yang diperlukan');
+        verifyBtn.disabled = true;
+    }
+});
+</script>
+
+<style>
+    .font-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .whitespace-pre-wrap {
+        white-space: pre-wrap;
+    }
+    .break-all {
+        word-break: break-all;
+    }
+    #toggleVisibility {
+        transition: all 0.2s;
+    }
+    #errorAlert {
+        transition: opacity 0.3s ease;
+    }
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}

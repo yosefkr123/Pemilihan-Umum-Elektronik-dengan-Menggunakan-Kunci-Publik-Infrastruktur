@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Verifikasi OTP{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-12">
+    <div class="card">
+        <div class="bg-gradient-primary p-8 text-white text-center">
+            <div class="bg-white bg-opacity-20 p-4 rounded-full inline-block mb-4">
+                <i class="fas fa-shield-alt text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Verifikasi OTP</h1>
+            <p class="text-white text-opacity-90">Masukkan kode OTP yang dikirim ke email Anda</p>
+        </div>
+
+        <div class="p-8">
+            <form method="POST" class="space-y-6">
+                {% if error %}
+                <div class="alert-error">
+                    <i class="fas fa-exclamation-circle mr-3"></i>
+                    <span>{{ error }}</span>
+                </div>
+                {% endif %}
+
+                <div>
+                    <label for="otp" class="block text-gray-700 font-medium mb-2">Kode OTP</label>
+                    <input type="text" id="otp" name="otp" required
+                        class="w-full input-field focus:border-primary focus:ring-2 focus:ring-primary-light text-center tracking-widest"
+                        maxlength="6" pattern="\d{6}" title="Masukkan 6 digit angka">
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" class="btn-primary w-full py-3 rounded-xl font-medium">
+                        <i class="fas fa-check-circle mr-2"></i>Verifikasi
+                    </button>
+                </div>
+                
+                <div class="text-center text-sm text-gray-600">
+                    <p>Kode OTP akan kadaluarsa dalam 5 menit</p>
+                    <a href="{{ url_for('forgot_password') }}" class="text-blue-500 hover:text-blue-600 mt-2 inline-block">
+                        <i class="fas fa-sync-alt mr-1"></i> Minta OTP baru
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

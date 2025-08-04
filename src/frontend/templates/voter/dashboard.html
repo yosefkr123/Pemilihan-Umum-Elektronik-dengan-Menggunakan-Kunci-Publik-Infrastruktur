@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Pemilih{% endblock %}
+
+{% block content %}
+{% if not session.voter_data.login_approved %}
+<!-- Pending Approval View -->
+<div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+    <!-- Header -->
+    <div class="bg-blue-600 px-6 py-4 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold">Selamat Datang, {{ session.voter_data.nama }}</h1>
+                <p class="text-blue-100">NIK: {{ session.voter_data.nik }}</p>
+            </div>
+            <div class="bg-blue-500 rounded-full p-3">
+                <i class="fas fa-user text-xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="p-6">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="mb-6 p-4 rounded-lg {% if category == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} mr-2"></i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Approval Pending Card -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-clock text-yellow-400 text-xl mt-1"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-lg font-medium text-yellow-800">Menunggu Persetujuan Login</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>Akun Anda berhasil login tetapi belum disetujui oleh petugas untuk melakukan pemilihan.</p>
+                        <p class="mt-2">Anda akan dapat mengakses fitur pemilihan setelah petugas menyetujui login Anda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        <div class="bg-gray-50 p-5 rounded-lg border border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Akun</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500">Nama Lengkap</p>
+                    <p class="font-medium">{{ session.voter_data.nama }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">NIK</p>
+                    <p class="font-medium">{{ session.voter_data.nik }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Status Verifikasi</p>
+                    <p class="font-medium">
+                        <span class="text-green-600">Terverifikasi</span>
+                    </p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Status Login</p>
+                    <p class="font-medium">
+                        <span class="text-yellow-600">Menunggu Persetujuan</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex justify-between items-center">
+            <div class="text-sm text-gray-500">
+                <i class="fas fa-info-circle mr-1"></i>
+                Hubungi petugas jika status tidak berubah dalam 1x24 jam
+            </div>
+            <a href="{{ url_for('logout') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700">
+                <i class="fas fa-sign-out-alt mr-2"></i> Keluar
+            </a>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Regular Dashboard View -->
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden card transform transition-all duration-500 hover:shadow-xl">
+        <!-- Header Section -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white bg-opacity-10"></div>
+            <div class="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-white bg-opacity-5"></div>
+            <div class="flex items-center justify-between relative z-10">
+                <div>
+                    <h2 class="text-2xl font-bold">Selamat Datang, {{ session.voter_data.nama }}</h2>
+                    <p class="text-white text-opacity-90">NIK: {{ session.voter_data.nik }}</p>
+                    {% if session.get('has_voted') %}
+                    <div class="mt-2 flex items-center bg-white bg-opacity-20 px-3 py-1 rounded-full">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span class="text-sm">Anda sudah memberikan suara</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="bg-white bg-opacity-20 p-3 rounded-full hover:bg-opacity-30 transition-all duration-300">
+                    <i class="fas fa-user text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} mb-6 p-4 rounded-lg border-l-4
+                            {% if category == 'success' %}bg-green-100 text-green-800 border-green-500
+                            {% elif category == 'error' %}bg-red-100 text-red-800 border-red-500
+                            {% else %}bg-blue-100 text-blue-800 border-blue-500{% endif %}">
+                            <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-3"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Action Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Voting Status Card -->
+                {% if not session.get('has_voted') %}
+                <a href="{{ url_for('enter_private_key') }}" class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-lg flex items-center space-x-4 hover:shadow-md transition-all duration-300 border border-indigo-100 hover:border-indigo-200 transform hover:-translate-y-1">
+                    <div class="bg-indigo-100 p-3 rounded-full text-indigo-600">
+                        <i class="fas fa-vote-yea text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Berikan Suara</h3>
+                        <p class="text-gray-600">Pilih kandidat pilihan Anda</p>
+                    </div>
+                    <div class="ml-auto text-indigo-400">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </a>
+                {% else %}
+                <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-lg flex items-center space-x-4 border border-green-200">
+                    <div class="bg-green-100 p-3 rounded-full text-green-600">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Anda Sudah Memilih</h3>
+                        <p class="text-gray-600">
+                            {% if session.get('candidate_data') %}
+                            <span class="font-medium text-green-700">Kandidat: {{ session.candidate_data.nama }} (No. {{ session.candidate_data.nomor_urut }})</span>
+                            {% else %}
+                            Terima kasih telah berpartisipasi
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Results Card (Only shown if already voted) -->
+                {% if session.get('has_voted') %}
+                <a href="{{ url_for('results') }}" class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-lg flex items-center space-x-4 hover:shadow-md transition-all duration-300 border border-blue-100 hover:border-blue-200 transform hover:-translate-y-1">
+                    <div class="bg-blue-100 p-3 rounded-full text-blue-600">
+                        <i class="fas fa-chart-bar text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Hasil Sementara</h3>
+                        <p class="text-gray-600">Lihat perkembangan hasil pemilihan</p>
+                    </div>
+                    <div class="ml-auto text-blue-400">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </a>
+                {% endif %}
+
+                <!-- Verification Card (Only shown if already voted) -->
+                {% if session.get('has_voted') %}
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg flex items-center space-x-4 border border-purple-200">
+                    <div class="bg-purple-100 p-3 rounded-full text-purple-600">
+                        <i class="fas fa-fingerprint text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-800">Status Verifikasi</h3>
+                        <div class="text-gray-600">
+                            <span class="text-green-600 font-medium">
+                                <i class="fas fa-check-circle"></i> Suara Anda telah diverifikasi
+                            </span>
+                            {% if session.get('vote_hash') %}
+                            <div class="mt-2">
+                                <p class="text-xs text-gray-500">Kode verifikasi:</p>
+                                <code class="text-xs font-mono bg-gray-100 px-2 py-1 rounded">{{ session.vote_hash }}</code>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Voting Guide Card -->
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-lg border border-yellow-200 hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="bg-yellow-100 p-3 rounded-full text-yellow-600">
+                            <i class="fas fa-info-circle text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800">Panduan Memilih</h3>
+                            <p class="text-gray-600">Ikuti langkah-langkah berikut</p>
+                        </div>
+                    </div>
+                    <div class="pl-16">
+                        <div class="space-y-3 text-sm text-gray-700">
+                            <div class="flex items-start">
+                                <span class="bg-yellow-100 text-yellow-600 rounded-full w-5 h-5 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">1</span>
+                                <span>Masuk ke halaman pemilihan</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-yellow-100 text-yellow-600 rounded-full w-5 h-5 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">2</span>
+                                <span>Pelajari profil kandidat</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-yellow-100 text-yellow-600 rounded-full w-5 h-5 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">3</span>
+                                <span>Pilih kandidat dan konfirmasi</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="bg-yellow-100 text-yellow-600 rounded-full w-5 h-5 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">4</span>
+                                <span>Verifikasi pilihan Anda</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

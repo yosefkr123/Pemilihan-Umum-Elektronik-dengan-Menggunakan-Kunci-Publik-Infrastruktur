@@ -1,0 +1,589 @@
+{% extends "base.html" %}
+
+{% block title %}Hasil Pemilihan Umum{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Header Section with Animated Gradient -->
+    <div class="text-center mb-12">
+        <div class="inline-block mb-6">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-500 hover:shadow-lg">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">HASIL PEMILIHAN UMUM</h1>
+                <p class="text-blue-100">Rekapitulasi Hasil Pemungutan Suara Elektronik</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards with Hover Effects -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <!-- Registered Voters Card -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-blue-500 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+            <div class="flex items-start">
+                <div class="bg-blue-100 p-3 rounded-full text-blue-600 mr-4">
+                    <i class="fas fa-user-friends text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Pemilih Terdaftar</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-1">{{ "{:,}".format(total_voters) }}</p>
+                    <div class="mt-2 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Valid Votes Card -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-green-500 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+            <div class="flex items-start">
+                <div class="bg-green-100 p-3 rounded-full text-green-600 mr-4">
+                    <i class="fas fa-vote-yea text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Suara Sah</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-1">{{ "{:,}".format(total_votes) }}</p>
+                    <div class="mt-2 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-green-500 rounded-full" 
+                             style="width: {{ (total_votes/total_voters)*100 if total_voters > 0 else 0 }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Participation Rate Card -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-purple-500 hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+            <div class="flex items-start">
+                <div class="bg-purple-100 p-3 rounded-full text-purple-600 mr-4">
+                    <i class="fas fa-percentage text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 font-medium uppercase tracking-wider">Tingkat Partisipasi</p>
+                    <p class="text-3xl font-bold text-gray-800 mt-1">{{ participation_rate }}%</p>
+                    <div class="mt-2 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-purple-500 rounded-full" style="width: {{ participation_rate }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if error %}
+    <!-- Error Alert with Animation -->
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg animate-fade-in">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-red-500 text-xl mt-1"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Terjadi Kesalahan</h3>
+                <div class="mt-2 text-sm text-red-700">
+                    <p>{{ error }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Interactive Chart Section -->
+    <div class="bg-white p-6 rounded-2xl shadow-lg mb-8 hover:shadow-xl transition-all duration-300">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-chart-line mr-2 text-blue-600"></i> Visualisasi Hasil Pemilihan
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Data real-time hasil pemilihan</p>
+            </div>
+            <div class="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+                <button id="chartBarBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium text-sm flex items-center hover:bg-blue-700 transition-all duration-300 shadow-sm">
+                    <i class="fas fa-chart-bar mr-2"></i> Batang
+                </button>
+                <button id="chartPieBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium text-sm flex items-center hover:bg-gray-300 transition-all duration-300 shadow-sm">
+                    <i class="fas fa-chart-pie mr-2"></i> Pie
+                </button>
+                <button id="chartDoughnutBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium text-sm flex items-center hover:bg-gray-300 transition-all duration-300 shadow-sm">
+                    <i class="fas fa-chart-pie mr-2"></i> Donat
+                </button>
+            </div>
+        </div>
+        <div class="chart-container relative h-96">
+            <canvas id="resultsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Results Table with Enhanced Styling -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 mb-8">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-purple-50">
+            <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-table mr-2 text-blue-600"></i> Rekapitulasi Hasil
+            </h2>
+            <div class="flex items-center">
+                <span class="text-sm text-gray-500 mr-2">Urutkan:</span>
+                <select id="sortSelect" class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="nomor">Nomor Urut</option>
+                    <option value="suara">Jumlah Suara</option>
+                    <option value="nama">Nama Kandidat</option>
+                </select>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gradient-to-r from-blue-600 to-purple-600">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-20 text-center">
+                            No. Urut
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                            Kandidat
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                            Partai
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                            Suara
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider w-48">
+                            Persentase
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for candidate in candidates %}
+                    <tr class="hover:bg-blue-50 transition-all duration-200 {% if loop.index0 == 0 %}bg-blue-50 font-semibold{% endif %}">
+                        <!-- Nomor Urut -->
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white flex items-center justify-center font-bold mx-auto shadow-md transform hover:scale-110 transition-all duration-300">
+                                {{ candidate.nomor_urut }}
+                            </div>
+                        </td>
+                        
+                        <!-- Candidate Info -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-14 w-14 rounded-full overflow-hidden border-4 border-white shadow-md hover:border-blue-300 transition-all duration-300">
+                                    {% if candidate.photo_url %}
+                                    <img class="h-full w-full object-cover" 
+                                         src="{{ url_for('static', filename='candidate_photos/' + candidate.photo_url) }}" 
+                                         alt="{{ candidate.nama }}"
+                                         onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default-profile.png') }}'">
+                                    {% else %}
+                                    <div class="h-full w-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-500">
+                                        <i class="fas fa-user text-2xl"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-lg font-medium text-gray-900 hover:text-blue-600 transition-all duration-300">
+                                        {{ candidate.nama }}
+                                        {% if loop.index0 == 0 %}
+                                        <span class="ml-2 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full">Pemenang</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{ candidate.jabatan }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        
+                        <!-- Party Info -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1.5 inline-flex text-xs leading-4 font-semibold rounded-full 
+                                {% if loop.index0 % 4 == 0 %}bg-blue-100 text-blue-800
+                                {% elif loop.index0 % 4 == 1 %}bg-red-100 text-red-800
+                                {% elif loop.index0 % 4 == 2 %}bg-green-100 text-green-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %} hover:shadow-md transition-all duration-300">
+                                <i class="fas fa-flag mr-1"></i> {{ candidate.partai }}
+                            </span>
+                        </td>
+                        
+                        <!-- Vote Count -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-xl font-bold text-gray-900">{{ "{:,}".format(candidate.vote_count) }}</div>
+                            <div class="text-xs text-gray-500">{{ ((candidate.vote_count/total_votes)*100 if total_votes > 0 else 0)|round(2) }}% dari total</div>
+                        </td>
+                        
+                        <!-- Percentage with Animated Bar -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <span class="w-12 text-right font-bold mr-2
+                                    {% if candidate.percentage >= 50 %}text-green-600
+                                    {% elif candidate.percentage >= 30 %}text-blue-600
+                                    {% elif candidate.percentage >= 10 %}text-yellow-600
+                                    {% else %}text-gray-600{% endif %}">
+                                    {{ candidate.percentage }}%
+                                </span>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="h-2.5 rounded-full 
+                                        {% if candidate.percentage >= 50 %}bg-green-500
+                                        {% elif candidate.percentage >= 30 %}bg-blue-500
+                                        {% elif candidate.percentage >= 10 %}bg-yellow-500
+                                        {% else %}bg-gray-500{% endif %}" 
+                                        style="width: {{ candidate.percentage }}%"
+                                        id="progress-{{ loop.index }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-gray-400">
+                                <i class="fas fa-exclamation-circle text-4xl mb-4"></i>
+                                <p class="text-xl font-medium">Data hasil belum tersedia</p>
+                                <p class="text-sm mt-2">Silakan coba lagi nanti</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Last Updated with Refresh Button -->
+    <div class="flex flex-col sm:flex-row justify-between items-center bg-blue-50 p-4 rounded-2xl shadow-inner">
+        <div class="flex items-center text-sm text-blue-800 mb-2 sm:mb-0">
+            <i class="fas fa-info-circle mr-2"></i>
+            <p>Data diperbarui secara real-time dari sistem tabulasi pusat</p>
+        </div>
+        <div class="flex items-center">
+            <button id="refreshBtn" class="flex items-center text-sm bg-white px-4 py-2 rounded-lg shadow hover:bg-gray-50 transition-all duration-300">
+                <i class="fas fa-sync-alt mr-2 animate-spin hidden" id="refreshIcon"></i>
+                <span id="refreshText">Perbarui Data</span>
+            </button>
+            <span class="ml-4 text-sm text-gray-600 flex items-center">
+                <i class="far fa-clock mr-1"></i>
+                <span id="lastUpdated">Terakhir diperbarui: {{ now }}</span>
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate progress bars with delay
+        document.querySelectorAll('[id^="progress-"]').forEach((progressBar, index) => {
+            const targetWidth = progressBar.style.width;
+            progressBar.style.width = '0%';
+            setTimeout(() => {
+                progressBar.style.width = targetWidth;
+                progressBar.style.transition = `width 1s ease-out ${index * 0.1}s`;
+            }, 100);
+        });
+
+        // Prepare chart data
+        const candidates = JSON.parse('{{ candidates | tojson | safe }}');
+        const totalVotes = {{ total_votes }};
+        
+        // Sort candidates by vote count (descending)
+        candidates.sort((a, b) => b.vote_count - a.vote_count);
+        
+        const labels = candidates.map(c => `${c.nomor_urut}. ${c.nama}`);
+        const votes = candidates.map(c => c.vote_count);
+        const percentages = candidates.map(c => c.percentage);
+        
+        // Color scheme with more vibrant colors
+        const backgroundColors = [
+            'rgba(79, 70, 229, 0.8)',  // primary
+            'rgba(16, 185, 129, 0.8)', // secondary
+            'rgba(245, 158, 11, 0.8)', // accent
+            'rgba(220, 38, 38, 0.8)',
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(5, 150, 105, 0.8)',
+            'rgba(217, 70, 239, 0.8)',
+            'rgba(234, 88, 12, 0.8)'
+        ];
+
+        // Chart config with improved styling
+        const ctx = document.getElementById('resultsChart').getContext('2d');
+        let currentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Jumlah Suara',
+                    data: votes,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors.map(c => c.replace('0.8', '1')),
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#fff',
+                    hoverBackgroundColor: backgroundColors.map(c => c.replace('0.8', '1'))
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.9)',
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.raw} suara (${percentages[context.dataIndex]}%)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { 
+                            precision: 0,
+                            font: { weight: 'bold' }
+                        },
+                        grid: { 
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { weight: 'bold' }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+
+        // Chart type toggle functions
+        function changeChartType(type) {
+            if (currentChart.config.type !== type) {
+                currentChart.destroy();
+                
+                const options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 20,
+                                font: { size: 12, weight: 'bold' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.9)',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw} suara (${percentages[context.dataIndex]}%)`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutQuart'
+                    }
+                };
+                
+                if (type === 'doughnut') {
+                    options.cutout = '70%';
+                }
+                
+                currentChart = new Chart(ctx, {
+                    type: type,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jumlah Suara',
+                            data: votes,
+                            backgroundColor: backgroundColors,
+                            borderColor: '#fff',
+                            borderWidth: 2,
+                            hoverBorderWidth: 3,
+                            hoverBorderColor: '#fff'
+                        }]
+                    },
+                    options: options
+                });
+            }
+        }
+
+        // Button event handlers
+        document.getElementById('chartBarBtn').addEventListener('click', function() {
+            changeChartType('bar');
+            this.classList.add('bg-blue-600', 'text-white');
+            this.classList.remove('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartPieBtn').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartPieBtn').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('chartDoughnutBtn').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartDoughnutBtn').classList.remove('bg-blue-600', 'text-white');
+        });
+
+        document.getElementById('chartPieBtn').addEventListener('click', function() {
+            changeChartType('pie');
+            this.classList.add('bg-blue-600', 'text-white');
+            this.classList.remove('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartBarBtn').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartBarBtn').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('chartDoughnutBtn').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartDoughnutBtn').classList.remove('bg-blue-600', 'text-white');
+        });
+
+        document.getElementById('chartDoughnutBtn').addEventListener('click', function() {
+            changeChartType('doughnut');
+            this.classList.add('bg-blue-600', 'text-white');
+            this.classList.remove('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartBarBtn').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartBarBtn').classList.remove('bg-blue-600', 'text-white');
+            document.getElementById('chartPieBtn').classList.add('bg-gray-200', 'text-gray-700');
+            document.getElementById('chartPieBtn').classList.remove('bg-blue-600', 'text-white');
+        });
+
+        // Sort table functionality
+        document.getElementById('sortSelect').addEventListener('change', function() {
+            const rows = Array.from(document.querySelectorAll('tbody tr')).filter(row => !row.querySelector('td[colspan]'));
+            
+            rows.sort((a, b) => {
+                const valueA = getSortValue(a, this.value);
+                const valueB = getSortValue(b, this.value);
+                
+                if (this.value === 'suara') {
+                    return parseInt(valueB) - parseInt(valueA);
+                } else if (this.value === 'nomor') {
+                    return parseInt(valueA) - parseInt(valueB);
+                } else {
+                    return valueA.localeCompare(valueB);
+                }
+            });
+            
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        });
+
+        function getSortValue(row, type) {
+            if (type === 'nomor') {
+                return row.querySelector('td:first-child div').textContent.trim();
+            } else if (type === 'suara') {
+                return row.querySelector('td:nth-child(4) div:first-child').textContent.replace(/,/g, '');
+            } else {
+                return row.querySelector('td:nth-child(2) div:last-child div:first-child').textContent.trim();
+            }
+        }
+
+        // Refresh button functionality
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            const icon = document.getElementById('refreshIcon');
+            const text = document.getElementById('refreshText');
+            
+            icon.classList.remove('hidden');
+            text.textContent = 'Memperbarui...';
+            
+            fetch(window.location.pathname)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const newDoc = parser.parseFromString(html, 'text/html');
+                    
+                    // Update last updated time
+                    document.getElementById('lastUpdated').textContent = 
+                        newDoc.getElementById('lastUpdated').textContent;
+                    
+                    // Show success feedback
+                    text.textContent = 'Berhasil Diperbarui!';
+                    setTimeout(() => {
+                        text.textContent = 'Perbarui Data';
+                    }, 2000);
+                })
+                .catch(error => {
+                    text.textContent = 'Gagal Memperbarui';
+                    setTimeout(() => {
+                        text.textContent = 'Perbarui Data';
+                    }, 2000);
+                })
+                .finally(() => {
+                    icon.classList.add('hidden');
+                });
+        });
+
+        // Auto-refresh every 30 seconds
+        let autoRefresh = setInterval(() => {
+            fetch(window.location.pathname)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const newDoc = parser.parseFromString(html, 'text/html');
+                    document.getElementById('lastUpdated').textContent = 
+                        newDoc.getElementById('lastUpdated').textContent;
+                });
+        }, 30000);
+
+        // Stop auto-refresh when tab is inactive
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(autoRefresh);
+            } else {
+                autoRefresh = setInterval(() => {
+                    fetch(window.location.pathname)
+                        .then(response => response.text())
+                        .then(html => {
+                            const parser = new DOMParser();
+                            const newDoc = parser.parseFromString(html, 'text/html');
+                            document.getElementById('lastUpdated').textContent = 
+                                newDoc.getElementById('lastUpdated').textContent;
+                        });
+                }, 30000);
+            }
+        });
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    .chart-container {
+        transition: all 0.3s ease;
+    }
+    
+    tr {
+        animation: fadeIn 0.3s ease-out forwards;
+        animation-delay: calc(var(--row-index) * 0.05s);
+    }
+    
+    /* Add some custom scrollbar styling for the table */
+    .overflow-x-auto::-webkit-scrollbar {
+        height: 8px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+{% endblock %}

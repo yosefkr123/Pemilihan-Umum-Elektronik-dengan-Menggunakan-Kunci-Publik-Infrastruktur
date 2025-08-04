@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Petugas{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+    <!-- Welcome Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden card mb-6">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold">
+                        Selamat Datang, {{ session.officer_data.nama }}
+                        {% if session.officer_data.is_special %}
+                        <span
+                            class="ml-2 bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">OFFICER
+                            KHUSUS</span>
+                        {% endif %}
+                    </h2>
+                    <p class="text-white text-opacity-80">Dashboard Petugas Verifikasi</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if session.officer_data.is_special %}
+                    <div class="bg-yellow-500 p-3 rounded-full text-white">
+                        <i class="fas fa-key text-2xl"></i>
+                    </div>
+                    {% endif %}
+                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
+                        <i class="fas fa-user-shield text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Pemilih -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-blue-100 p-4 rounded-full text-blue-600">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Total Pemilih</p>
+                    <h3 class="text-2xl font-bold">{{ stats.total_voters or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terverifikasi -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-green-100 p-4 rounded-full text-green-600">
+                    <i class="fas fa-user-check text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Terverifikasi</p>
+                    <h3 class="text-2xl font-bold">{{ stats.verified_voters or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sudah Memilih -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-green-500 p-4 rounded-full text-white">
+                    <i class="fas fa-check-circle text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Sudah Memilih</p>
+                    <h3 class="text-2xl font-bold">{{ stats.voters_voted or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Belum Memilih -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-red-100 p-4 rounded-full text-red-600">
+                    <i class="fas fa-exclamation-circle text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Belum Memilih</p>
+                    <h3 class="text-2xl font-bold">{{ stats.total_voters - stats.voters_voted if stats.total_voters and
+                        stats.voters_voted else 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Suara -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-purple-100 p-4 rounded-full text-purple-600">
+                    <i class="fas fa-vote-yea text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Total Suara</p>
+                    <h3 class="text-2xl font-bold">{{ stats.total_votes or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kandidat -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-indigo-100 p-4 rounded-full text-indigo-600">
+                    <i class="fas fa-user-tie text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Kandidat</p>
+                    <h3 class="text-2xl font-bold">{{ stats.total_candidates or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Petugas -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-orange-100 p-4 rounded-full text-orange-600">
+                    <i class="fas fa-user-shield text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Petugas</p>
+                    <h3 class="text-2xl font-bold">{{ stats.total_officers or 0 }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Pemilihan -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-blue-500 p-4 rounded-full text-white">
+                    <i class="fas fa-calendar-check text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Status Pemilihan</p>
+                    <h3 class="text-2xl font-bold">
+                        {% if stats.election_status == 'ongoing' %}
+                        <span class="text-green-600">Berlangsung</span>
+                        {% if stats.time_remaining %}
+                        <p class="text-xs text-gray-500" id="election-countdown">{{ stats.time_remaining }} lagi</p>
+                        {% endif %}
+                        {% elif stats.election_status == 'upcoming' %}
+                        <span class="text-yellow-600">Akan Datang</span>
+                        {% if stats.time_until_start %}
+                        <p class="text-xs text-gray-500">{{ stats.time_until_start }} lagi</p>
+                        {% endif %}
+                        {% elif stats.election_status == 'ended' %}
+                        <span class="text-red-600">Selesai</span>
+                        {% else %}
+                        Belum Ditetapkan
+                        {% endif %}
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Special Officer Key Display -->
+    {% if session.officer_data.is_special %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden card mb-8">
+        <div class="bg-yellow-500 p-4 text-white">
+            <h2 class="text-xl font-bold">
+                <i class="fas fa-key mr-2"></i> Informasi Kunci Khusus
+            </h2>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-2">Public Key</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg overflow-x-auto">
+                        <pre class="text-xs">{{ officer.public_key if officer else 'Tidak tersedia' }}</pre>
+                    </div>
+                    <button onclick="copyToClipboard('publicKey')"
+                        class="mt-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-sm transition">
+                        <i class="fas fa-copy mr-1"></i> Salin Public Key
+                    </button>
+                    <div id="publicKey" class="hidden">{{ officer.public_key if officer else '' }}</div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-2">Private Key</h3>
+                    <div class="bg-gray-100 p-3 rounded-lg overflow-x-auto">
+                        <pre class="text-xs">*************************</pre>
+                    </div>
+                    <div class="mt-2 text-sm text-red-500">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Private Key tidak ditampilkan untuk alasan
+                        keamanan
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Daftar Pemilih -->
+        <a href="{{ url_for('list_voters') }}"
+            class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-indigo-100 p-4 rounded-full text-indigo-600">
+                    <i class="fas fa-users text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">Daftar Pemilih</h3>
+                    <p class="text-gray-600">Kelola semua pemilih</p>
+                </div>
+            </div>
+        </a>
+
+        <!-- Status Pemilihan -->
+        <a href="{{ url_for('voting_status') }}"
+            class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-green-100 p-4 rounded-full text-green-600">
+                    <i class="fas fa-clipboard-check text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">Status Pemilihan</h3>
+                    <p class="text-gray-600">Lihat status pemilihan</p>
+                </div>
+            </div>
+        </a>
+
+        <!-- Approve Login -->
+        <a href="{{ url_for('approve_logins') }}"
+            class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-blue-100 p-4 rounded-full text-blue-600">
+                    <i class="fas fa-user-clock text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">Approve Login</h3>
+                    <p class="text-gray-600">Verifikasi login pemilih</p>
+                </div>
+            </div>
+        </a>
+
+        <!-- Tabulasi -->
+        <a href="{{ url_for('tabulasi') }}"
+            class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-purple-100 p-4 rounded-full text-purple-600">
+                    <i class="fas fa-chart-pie text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">Hasil Tabulasi</h3>
+                    <p class="text-gray-600">Lihat hasil pemilihan</p>
+                </div>
+            </div>
+        </a>
+
+        <!-- Menu baru hanya untuk officer khusus -->
+        {% if session.officer_data.is_special %}
+
+        <!-- Decrypt Votes -->
+        <a href="{{ url_for('decrypt_votes') }}"
+            class="bg-white rounded-xl shadow-md overflow-hidden card hover:shadow-lg transition">
+            <div class="p-6 flex items-center space-x-4">
+                <div class="bg-red-100 p-4 rounded-full text-red-600">
+                    <i class="fas fa-lock-open text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">Dekripsi Suara</h3>
+                    <p class="text-gray-600">Dekripsi semua suara</p>
+                </div>
+            </div>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        const range = document.createRange();
+        range.selectNode(element);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        window.getSelection().removeAllRanges();
+
+        // Show notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg';
+        notification.textContent = 'Tersalin ke clipboard!';
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 2000);
+    }
+
+    // Countdown timer for election
+    function updateElectionCountdown() {
+        {% if stats.election_status == 'ongoing' and stats.end_time %}
+        const endTime = new Date("{{ stats.end_time }}".replace(' ', 'T')).getTime();
+        const timerElement = document.getElementById('election-countdown');
+
+        if (timerElement) {
+            const countdown = setInterval(function () {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+
+                if (distance < 0) {
+                    clearInterval(countdown);
+                    timerElement.innerHTML = "Pemilihan telah berakhir";
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                timerElement.innerHTML = `${days}d ${hours}h ${minutes}m lagi`;
+            }, 60000); // Update every minute
+        }
+        {% endif %}
+    }
+
+    document.addEventListener('DOMContentLoaded', updateElectionCountdown);
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Password Berhasil Diperbarui{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-12">
+    <div class="card">
+        <div class="bg-gradient-success p-8 text-white text-center">
+            <div class="bg-white bg-opacity-20 p-4 rounded-full inline-block mb-4">
+                <i class="fas fa-check-circle text-3xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Password Berhasil Diperbarui!</h1>
+            <p class="text-white text-opacity-90">Notifikasi telah dikirim ke email Anda</p>
+        </div>
+
+        <div class="p-8 text-center">
+            <div class="mb-6">
+                <i class="fas fa-check-circle text-5xl text-green-500 mb-4"></i>
+                <p class="text-gray-700">Password Anda telah berhasil diperbarui.</p>
+                <p class="text-gray-600 mt-2">Silakan cek email Anda untuk informasi lebih lanjut.</p>
+            </div>
+            
+            <a href="{{ url_for('login') }}" class="btn-primary inline-block px-6 py-3 rounded-xl font-medium">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login Sekarang
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+{% block title %}Verifikasi Suara{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Verifikasi Suara</h1>
+    
+    <!-- Verification Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Encrypted Votes -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Total Suara Terenkripsi</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ verify_stats.total_encrypted_votes|default(0) }}</h3>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <i class="fas fa-lock text-purple-500 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-500">Keamanan</span>
+                    <span class="font-medium text-purple-500">100% Terenkripsi</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div class="bg-purple-500 h-2 rounded-full" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verified Votes -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Suara Terverifikasi</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ verify_stats.verified_votes|default(0) }}</h3>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-check-circle text-green-500 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-500">Validitas</span>
+                    <span class="font-medium text-green-500">
+                        {% if verify_stats.total_encrypted_votes|default(0) > 0 %}
+                            {{ ((verify_stats.verified_votes|default(0)/verify_stats.total_encrypted_votes)*100)|round(1) }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                        Valid
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div class="bg-green-500 h-2 rounded-full" 
+                         style="width: {% if verify_stats.total_encrypted_votes|default(0) > 0 %}{{ ((verify_stats.verified_votes|default(0)/verify_stats.total_encrypted_votes)*100)|round(1) }}{% else %}0{% endif %}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Rate -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Tingkat Verifikasi</p>
+                    <h3 class="text-2xl font-bold text-gray-800">{{ verify_stats.verification_rate|default(0) }}%</h3>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-shield-alt text-blue-500 text-xl"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-500">Sampel Terverifikasi</span>
+                    <span class="font-medium text-blue-500">{{ verify_stats.sample_size|default(5) }} sampel</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div class="bg-blue-500 h-2 rounded-full" 
+                         style="width: {{ verify_stats.verification_rate|default(0) }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Votes for Verification -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-gray-800">Sampel Suara untuk Verifikasi</h2>
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors" id="refreshSamples">
+                <i class="fas fa-sync-alt mr-2"></i> Muat Ulang
+            </button>
+        </div>
+        
+        {% if votes %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Pemilih</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hash Suara</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kandidat Dipilih</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for vote in votes %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-bold text-gray-900">{{ vote.voter_id }}</div>
+                                <div class="text-xs text-gray-500">{{ vote.timestamp }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 font-mono truncate max-w-xs">{{ vote.vote_hash }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if vote.candidate %}
+                                <div class="flex items-center">
+                                    {% if vote.candidate.photo_url %}
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <img class="h-10 w-10 rounded-full object-cover" 
+                                             src="{{ url_for('static', filename='candidate_photos/' + vote.candidate.photo_url) }}" 
+                                             alt="{{ vote.candidate.nama }}"
+                                             onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/default-candidate.png') }}'">
+                                    </div>
+                                    {% endif %}
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ vote.candidate.nama }}</div>
+                                        <div class="text-sm text-gray-500">No. {{ vote.candidate.nomor_urut }}</div>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="text-gray-400 text-sm">Belum diverifikasi</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if vote.verified %}
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                    <i class="fas fa-check-circle mr-1"></i> Valid
+                                </span>
+                                {% else %}
+                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                    <i class="fas fa-question-circle mr-1"></i> Belum Diverifikasi
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors verify-btn" 
+                                        data-hash="{{ vote.vote_hash }}" 
+                                        data-voter="{{ vote.voter_id }}"
+                                        {% if vote.verified %}disabled title="Sudah diverifikasi"{% endif %}>
+                                    <i class="fas fa-search mr-1"></i> {% if vote.verified %}Sudah Diverifikasi{% else %}Verifikasi{% endif %}
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-vote-yea text-gray-300 text-4xl mb-3"></i>
+                <p class="text-gray-500">Belum ada data suara untuk diverifikasi</p>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors mt-4" id="refreshSamples2">
+                    <i class="fas fa-sync-alt mr-2"></i> Muat Ulang
+                </button>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Verification Details -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Detail Verifikasi</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Encryption Process -->
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center mb-3">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-lock text-blue-500"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-800">Proses Enkripsi</h3>
+                </div>
+                <ol class="list-decimal list-inside text-sm text-gray-600 space-y-2">
+                    <li>Suara dienkripsi dengan kunci publik pemilih</li>
+                    <li>Hash unik dihasilkan dari suara terenkripsi</li>
+                    <li>Tanda tangan digital dibuat dengan kunci privat pemilih</li>
+                    <li>Data disimpan dalam bentuk terenkripsi</li>
+                </ol>
+            </div>
+            
+            <!-- Verification Process -->
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center mb-3">
+                    <div class="bg-green-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                    <h3 class="font-medium text-gray-800">Proses Verifikasi</h3>
+                </div>
+                <ol class="list-decimal list-inside text-sm text-gray-600 space-y-2">
+                    <li>Verifikasi tanda tangan digital dengan kunci publik</li>
+                    <li>Validasi hash suara untuk memastikan integritas</li>
+                    <li>Dekripsi suara dengan kunci privat (hanya oleh pemilik suara)</li>
+                    <li>Konfirmasi pilihan kandidat sesuai dengan database</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Modal -->
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden" id="verificationModal">
+    <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-gray-800">Hasil Verifikasi Suara</h3>
+            <button id="closeVerificationModal" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="space-y-4" id="verificationResult">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<!-- Error Toast -->
+<div id="errorToast" class="fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg hidden">
+    <div class="flex items-center">
+        <i class="fas fa-exclamation-circle mr-2"></i>
+        <span id="toastMessage"></span>
+    </div>
+</div>
+
+<script>
+// CSRF Token setup
+function getCSRFToken() {
+    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+    return csrfTokenMeta ? csrfTokenMeta.content : '';
+}
+
+// Show error toast
+function showErrorToast(message) {
+    const toast = document.getElementById('errorToast');
+    const toastMessage = document.getElementById('toastMessage');
+    toastMessage.textContent = message;
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 5000);
+}
+
+// Refresh samples
+function refreshSamples() {
+    window.location.reload();
+}
+
+document.getElementById('refreshSamples').addEventListener('click', refreshSamples);
+document.getElementById('refreshSamples2')?.addEventListener('click', refreshSamples);
+
+// Verification handler
+document.querySelectorAll('.verify-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        if (this.disabled) return;
+        
+        const voteHash = this.getAttribute('data-hash');
+        const voterId = this.getAttribute('data-voter');
+        const modal = document.getElementById('verificationModal');
+        
+        // Show loading state
+        document.getElementById('verificationResult').innerHTML = `
+            <div class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-blue-500 text-2xl mb-3"></i>
+                <p class="text-gray-600">Memverifikasi suara...</p>
+            </div>
+        `;
+        
+        modal.classList.remove('hidden');
+        
+        try {
+            const response = await fetch('/verify_vote_sample', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({
+                    voter_id: voterId,
+                    vote_hash: voteHash
+                })
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Gagal memverifikasi suara');
+            }
+
+            let candidateInfo = '';
+            if (data.candidate) {
+                candidateInfo = `
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <div class="flex-shrink-0 h-12 w-12">
+                            ${data.candidate.photo_url ? 
+                                `<img class="h-12 w-12 rounded-full object-cover" 
+                                      src="/static/candidate_photos/${data.candidate.photo_url}" 
+                                      alt="${data.candidate.nama}"
+                                      onerror="this.onerror=null;this.src='/static/images/default-candidate.png'">` : 
+                                `<div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-400"></i>
+                                </div>`
+                            }
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-900">${data.candidate.nama}</div>
+                            <div class="text-sm text-gray-500">No. ${data.candidate.nomor_urut} - ${data.candidate.partai}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('verificationResult').innerHTML = `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-green-800">Verifikasi Berhasil</p>
+                            <p class="text-sm text-green-600">Suara valid dan belum diubah</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-500">ID Pemilih</p>
+                        <p class="font-mono text-sm bg-gray-100 p-2 rounded">${data.voter_id}</p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-500">Hash Suara</p>
+                        <p class="font-mono text-sm bg-gray-100 p-2 rounded truncate">${data.vote_hash}</p>
+                    </div>
+                    
+                    ${data.candidate ? `
+                    <div>
+                        <p class="text-sm text-gray-500">Kandidat Dipilih</p>
+                        ${candidateInfo}
+                    </div>
+                    ` : ''}
+                    
+                    <div>
+                        <p class="text-sm text-gray-500">Waktu Verifikasi</p>
+                        <p class="text-sm">${new Date().toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Refresh the page after 2 seconds to show updated status
+            setTimeout(refreshSamples, 2000);
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('verificationResult').innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="bg-red-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-times-circle text-red-500"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-red-800">Verifikasi Gagal</p>
+                            <p class="text-sm text-red-600">${error.message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showErrorToast(error.message);
+        }
+    });
+});
+
+// Close modal
+document.getElementById('closeVerificationModal').addEventListener('click', function() {
+    document.getElementById('verificationModal').classList.add('hidden');
+});
+
+// Close modal when clicking outside
+document.getElementById('verificationModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.add('hidden');
+    }
+});
+</script>
+{% endblock %}

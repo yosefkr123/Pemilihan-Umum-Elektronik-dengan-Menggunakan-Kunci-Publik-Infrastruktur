@@ -1,0 +1,26 @@
+# Hasil build dan compile
+/build/
+classes/
+dist/
+*.class
+*.jar
+*.exe
+*.dll
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Sertifikat & kunci privat
+*.pem
+
+# Foto panjang path
+/src/frontend/static/candidate_photos/
+
+# Sistem & editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

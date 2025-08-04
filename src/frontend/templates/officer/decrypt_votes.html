@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Dekripsi Suara - Officer Khusus{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                <i class="fas fa-key mr-2 text-blue-600"></i> Dekripsi dan Hitung Suara
+            </h1>
+            <p class="text-gray-600 mt-2">Fitur khusus untuk officer yang berwenang mendekripsi hasil pemilihan</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                <i class="fas fa-shield-alt mr-1"></i> Akses Terbatas
+            </span>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    {% if error %}
+    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-lg flex items-start">
+        <div class="flex-shrink-0">
+            <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+        </div>
+        <div>
+            <h3 class="text-sm font-medium text-red-800">Gagal Melakukan Dekripsi</h3>
+            <div class="mt-1 text-sm text-red-700">
+                <p>{{ error }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Decryption Form -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-200">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white">
+            <div class="flex items-center">
+                <div class="bg-blue-500 p-3 rounded-full mr-4">
+                    <i class="fas fa-lock-open text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">Form Dekripsi Suara</h2>
+                    <p class="text-blue-100 text-sm mt-1">Masukkan private key officer khusus untuk memulai proses
+                        dekripsi</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-6">
+            <form method="POST">
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="private_key">
+                        Private Key Officer Khusus
+                    </label>
+                    <textarea id="private_key" name="private_key" rows="8"
+                        class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        placeholder="-----BEGIN PRIVATE KEY-----&#10;Masukkan private key Anda di sini&#10;-----END PRIVATE KEY-----"
+                        required></textarea>
+                    <p class="text-gray-500 text-xs italic mt-2">
+                        Pastikan private key yang dimasukkan sesuai
+                    </p>
+                </div>
+                <div class="flex items-center justify-end">
+                    <button type="submit"
+                        class="bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-unlock-alt mr-2"></i> Proses Dekripsi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    {% if results %}
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-200">
+        <div class="bg-gradient-to-r from-green-600 to-green-800 p-6 text-white">
+            <div class="flex items-center">
+                <div class="bg-green-500 p-3 rounded-full mr-4">
+                    <i class="fas fa-chart-pie text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold">Hasil Dekripsi Suara</h2>
+                    <p class="text-green-100 text-sm mt-1">Rekapitulasi hasil pemilihan setelah proses dekripsi</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-6">
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div
+                    class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-check-circle text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Suara Valid</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ results.valid_votes }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Suara Invalid</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ results.invalid_votes }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition-all duration-300">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 p-3 rounded-full mr-4">
+                            <i class="fas fa-poll text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Suara Diproses</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ results.valid_votes + results.invalid_votes
+                                }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Candidates Results -->
+            <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Hasil Per Kandidat</h3>
+            <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm mb-8">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                No. Urut</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Kandidat</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Partai</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Jumlah Suara</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Persentase</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for candidate in results.candidates %}
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{
+                                candidate.nomor_urut }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if candidate.photo_url %}
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <img class="h-10 w-10 rounded-full object-cover border border-gray-200"
+                                            src="{{ url_for('static', filename='candidate_photos/' + candidate.photo_url) }}"
+                                            alt="{{ candidate.nama }}">
+                                    </div>
+                                    {% endif %}
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ candidate.nama }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ candidate.partai }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    {{ candidate.get('vote_count', 0) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {% if results.total_votes > 0 %}
+                                {{ (candidate.get('vote_count', 0) / results.total_votes * 100)|round(1) }}%
+                                {% else %}
+                                0%
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Detail Proses Dekripsi</h3>
+            <div class="space-y-4">
+                {% for vote in results.votes %}
+                <div
+                    class="border rounded-lg p-4 {% if vote.status == 'Valid' %}bg-green-50 border-green-200{% else %}bg-red-50 border-red-200{% endif %} transition-all duration-200 hover:shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-gray-800">
+                                <i
+                                    class="fas {% if vote.status == 'Valid' %}fa-check-circle text-green-500{% else %}fa-times-circle text-red-500{% endif %} mr-2"></i>
+                                ID Suara: {{ vote.vote_id }}
+                            </p>
+                            {% if vote.status == 'Valid' %}
+                            <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-medium">Kandidat:</span>
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">{{
+                                        vote.candidate_id }}</span>
+                                </p>
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-medium">Waktu:</span>
+                                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">{{ vote.timestamp
+                                        }}</span>
+                                </p>
+                            </div>
+                            {% else %}
+                            <div class="mt-2">
+                                <p class="text-red-600 font-medium">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> Error:
+                                </p>
+                                <p class="text-sm text-red-600">{{ vote.message if vote.message else 'Tidak valid' }}
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded-full shadow-sm">
+                            {% if vote.status == 'Valid' %}
+                            <i class="fas fa-check text-green-500 mr-1"></i> Valid
+                            {% else %}
+                            <i class="fas fa-times text-red-500 mr-1"></i> Invalid
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,695 @@
+{% extends "base.html" %}
+
+{% block title %}Manajemen Persetujuan Login{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Manajemen Persetujuan Login</h1>
+            <p class="mt-2 text-lg text-gray-600">Kelola persetujuan login pemilih dengan mudah</p>
+        </div>
+        <div class="mt-4 md:mt-0">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <input id="searchInput" type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari pemilih...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <div class="px-6 py-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-5">
+                        <p class="text-sm font-medium text-gray-500 truncate">Total Pemilih</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ voters|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <div class="px-6 py-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-green-100 p-3 rounded-full">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-5">
+                        <p class="text-sm font-medium text-gray-500 truncate">Approved</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ voters|selectattr('login_approved')|list|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+            <div class="px-6 py-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-yellow-100 p-3 rounded-full">
+                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-5">
+                        <p class="text-sm font-medium text-gray-500 truncate">Pending</p>
+                        <p class="mt-1 text-2xl font-semibold text-gray-900">{{ voters|rejectattr('login_approved')|list|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <!-- Table Header -->
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-800">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <h2 class="text-lg font-semibold text-white">Daftar Persetujuan Login</h2>
+                <div class="mt-2 md:mt-0 flex space-x-2">
+                    <div class="inline-flex rounded-md shadow-sm">
+                        <a href="?status=all" class="{% if request.args.get('status', 'all') == 'all' %}bg-white text-blue-600{% else %}bg-blue-700 text-white hover:bg-blue-800{% endif %} px-4 py-2 text-sm font-medium rounded-l-lg border border-blue-600 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            Semua
+                        </a>
+                        <a href="?status=pending" class="{% if request.args.get('status') == 'pending' %}bg-white text-blue-600{% else %}bg-blue-700 text-white hover:bg-blue-800{% endif %} px-4 py-2 text-sm font-medium border-t border-b border-blue-600 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            Pending
+                        </a>
+                        <a href="?status=approved" class="{% if request.args.get('status') == 'approved' %}bg-white text-blue-600{% else %}bg-blue-700 text-white hover:bg-blue-800{% endif %} px-4 py-2 text-sm font-medium rounded-r-lg border border-blue-600 focus:z-10 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            Approved
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for voter in voters %}
+                    {% if request.args.get('status', 'all') == 'all' or 
+                          (request.args.get('status') == 'pending' and not voter.login_approved) or
+                          (request.args.get('status') == 'approved' and voter.login_approved) %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <svg class="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ voter.nik }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 font-medium">{{ voter.nama }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500">{{ voter.email }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if voter.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if voter.is_active %}Terverifikasi{% else %}Belum{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if voter.login_approved %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {% if voter.login_approved %}Approved{% else %}Pending{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-2">
+                                {% if not voter.login_approved %}
+                                <form method="POST" action="{{ url_for('approve_login', voter_id=voter.voter_id) }}">
+                                    <button type="submit" class="text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                        Approve
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form method="POST" action="{{ url_for('reject_login', voter_id=voter.voter_id) }}">
+                                    <button type="submit" class="text-white bg-yellow-500 hover:bg-yellow-600 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+                                        Reset
+                                    </button>
+                                </form>
+                                {% endif %}
+                                <button onclick="showVoterDetails('{{ voter.voter_id }}')" class="text-blue-600 hover:text-blue-900 px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Detail
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                            <div class="flex flex-col items-center justify-center py-8">
+                                <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada data</h3>
+                                <p class="mt-1 text-sm text-gray-500">Tidak ada pemilih yang menunggu persetujuan saat ini.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modern Modal -->
+<div id="voterModal" class="fixed z-50 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">Memuat data...</h3>
+                        <div id="modalError" class="hidden mt-4 bg-red-50 border-l-4 border-red-400 p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-700" id="modalErrorMessage"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Left Column -->
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">NIK</label>
+                                        <p id="modal-nik" class="mt-1 text-sm text-gray-900">...</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Nama Lengkap</label>
+                                        <p id="modal-nama" class="mt-1 text-sm text-gray-900">...</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Tempat/Tanggal Lahir</label>
+                                        <p id="modal-ttl" class="mt-1 text-sm text-gray-900">...</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Jenis Kelamin</label>
+                                        <p id="modal-jenis-kelamin" class="mt-1 text-sm text-gray-900">...</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Right Column -->
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Alamat</label>
+                                        <p id="modal-alamat" class="mt-1 text-sm text-gray-900">...</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Status Pernikahan</label>
+                                        <p id="modal-status-pernikahan" class="mt-1 text-sm text-gray-900">...</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Email</label>
+                                        <p id="modal-email" class="mt-1 text-sm text-gray-900">...</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Status Akun</label>
+                                        <p id="modal-status-verifikasi" class="mt-1 text-sm">...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Approval Section -->
+                            <div class="mt-6 pt-6 border-t border-gray-200">
+                                <h4 class="text-sm font-medium text-gray-500 mb-2">Informasi Persetujuan Login</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Status Login</label>
+                                        <p id="modal-status-login" class="mt-1 text-sm">...</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Disetujui Oleh</label>
+                                        <p id="modal-approved-by" class="mt-1 text-sm text-gray-900">-</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Waktu Persetujuan</label>
+                                        <p id="modal-approved-at" class="mt-1 text-sm text-gray-900">-</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-500">Terdaftar Pada</label>
+                                        <p id="modal-registered-at" class="mt-1 text-sm text-gray-900">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="hideVoterDetails()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fungsi utama untuk menampilkan detail voter
+async function showVoterDetails(voterId) {
+    try {
+        // Tampilkan modal dengan loading state
+        const modal = document.getElementById('voterModal');
+        showLoadingState(modal);
+        
+        // Fetch data voter dari server
+        const response = await fetchWithTimeout(
+            `/get_voter_details?voter_id=${encodeURIComponent(voterId)}`, 
+            {}, 
+            5000 // timeout 5 detik
+        );
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.status !== 'success') {
+            throw new Error(data.message || 'Gagal memuat data voter');
+        }
+        
+        // Update modal dengan data yang diterima
+        updateModalWithData(data.voter);
+        
+    } catch (error) {
+        console.error('Error in showVoterDetails:', error);
+        showModalError(error.message || 'Terjadi kesalahan saat memuat data');
+    }
+}
+
+// Fungsi untuk menutup modal
+function hideVoterDetails() {
+    document.getElementById('voterModal').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+}
+
+// Fungsi untuk menampilkan loading state
+function showLoadingState(modal) {
+    // Set judul modal
+    modal.querySelector('#modalTitle').textContent = "Memuat data pemilih...";
+    
+    // Sembunyikan error message jika ada
+    modal.querySelector('#modalError').classList.add('hidden');
+    
+    // Set semua field ke state loading
+    document.querySelectorAll('.modal-data-field').forEach(el => {
+        el.textContent = '...';
+        el.classList.add('text-gray-400');
+    });
+    
+    // Tampilkan modal
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+}
+
+// Fungsi untuk menampilkan error di modal
+function showModalError(message) {
+    const modalError = document.getElementById('modalError');
+    const modalErrorMessage = document.getElementById('modalErrorMessage');
+    
+    modalErrorMessage.textContent = message;
+    modalError.classList.remove('hidden');
+    
+    document.getElementById('modalTitle').textContent = 'Error Memuat Data';
+}
+
+// Fungsi untuk mengupdate modal dengan data voter
+function updateModalWithData(voter) {
+    // Update data dasar
+    document.getElementById('modal-nik').textContent = voter.nik || '-';
+    document.getElementById('modal-nama').textContent = voter.nama || '-';
+    document.getElementById('modal-ttl').textContent = 
+        `${voter.tempat_lahir || '-'}, ${voter.tanggal_lahir || '-'}`;
+    document.getElementById('modal-jenis-kelamin').textContent = voter.jenis_kelamin || '-';
+    document.getElementById('modal-alamat').textContent = voter.alamat || '-';
+    document.getElementById('modal-status-pernikahan').textContent = voter.status_pernikahan || '-';
+    document.getElementById('modal-email').textContent = voter.email || '-';
+    
+    // Update status verifikasi
+    updateStatusIndicator(
+        'modal-status-verifikasi', 
+        voter.is_active, 
+        'Terverifikasi', 
+        'Belum Diverifikasi',
+        'green',
+        'red'
+    );
+    
+    // Update status login approval
+    updateStatusIndicator(
+        'modal-status-login', 
+        voter.login_approved, 
+        'Approved', 
+        'Pending',
+        'green',
+        'yellow'
+    );
+    
+    // Update informasi approval
+    document.getElementById('modal-approved-by').textContent = 
+        voter.approved_by || 'Belum disetujui';
+    document.getElementById('modal-approved-at').textContent = 
+        voter.approved_at ? formatDateTime(voter.approved_at) : 'Belum disetujui';
+    document.getElementById('modal-registered-at').textContent = 
+        voter.registered_at ? formatDateTime(voter.registered_at) : '-';
+    
+    // Update judul modal
+    document.getElementById('modalTitle').textContent = `Detail Pemilih: ${voter.nama || voter.nik}`;
+    
+    // Hapus loading state
+    document.querySelectorAll('.modal-data-field').forEach(el => {
+        el.classList.remove('text-gray-400');
+    });
+}
+
+// Fungsi untuk membuat status indicator dengan icon
+function updateStatusIndicator(elementId, status, trueText, falseText, trueColor, falseColor) {
+    const element = document.getElementById(elementId);
+    
+    if (status) {
+        element.innerHTML = `
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${trueColor}-100 text-${trueColor}-800">
+                <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-${trueColor}-400" fill="currentColor" viewBox="0 0 8 8">
+                    <circle cx="4" cy="4" r="3" />
+                </svg>
+                ${trueText}
+            </span>
+        `;
+    } else {
+        element.innerHTML = `
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${falseColor}-100 text-${falseColor}-800">
+                <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-${falseColor}-400" fill="currentColor" viewBox="0 0 8 8">
+                    <circle cx="4" cy="4" r="3" />
+                </svg>
+                ${falseText}
+            </span>
+        `;
+    }
+}
+
+// Fungsi untuk format tanggal
+function formatDateTime(datetimeString) {
+    try {
+        const options = { 
+            weekday: 'long',
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit', 
+            minute: '2-digit',
+            timeZone: 'Asia/Jakarta'
+        };
+        
+        const date = new Date(datetimeString);
+        
+        // Fallback jika parsing gagal
+        if (isNaN(date.getTime())) {
+            return datetimeString; // return original string jika invalid date
+        }
+        
+        return date.toLocaleDateString('id-ID', options);
+    } catch (e) {
+        console.error('Error formatting date:', e);
+        return datetimeString; // return original string jika error
+    }
+}
+
+// Fungsi fetch dengan timeout
+function fetchWithTimeout(url, options = {}, timeout = 8000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), timeout)
+        )
+    ]);
+}
+
+// Fungsi untuk handle approve/reject login
+async function handleLoginAction(voterId, action) {
+    try {
+        const response = await fetchWithTimeout(
+            action === 'approve' 
+                ? `/approve_login/${voterId}`
+                : `/reject_login/${voterId}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            },
+            5000
+        );
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            // Refresh data atau update UI sesuai kebutuhan
+            showToast('success', `Login berhasil di-${action}`);
+            
+            // Jika modal sedang terbuka, refresh data
+            if (!document.getElementById('voterModal').classList.contains('hidden')) {
+                await showVoterDetails(voterId);
+            }
+            
+            // Refresh tabel jika diperlukan
+            if (typeof refreshVoterTable === 'function') {
+                refreshVoterTable();
+            }
+            
+            return true;
+        } else {
+            throw new Error(result.message || `Gagal melakukan ${action}`);
+        }
+    } catch (error) {
+        console.error(`Error in handleLoginAction (${action}):`, error);
+        showToast('error', error.message || `Terjadi kesalahan saat melakukan ${action}`);
+        return false;
+    }
+}
+
+// Fungsi untuk menampilkan notifikasi toast
+function showToast(type, message) {
+    const toastContainer = document.getElementById('toast-container');
+    
+    // Buat elemen toast
+    const toast = document.createElement('div');
+    toast.className = `toast-${type} animate-fade-in`;
+    toast.innerHTML = `
+        <div class="flex items-center">
+            <svg class="toast-icon" viewBox="0 0 20 20" fill="currentColor">
+                ${type === 'success' ? 
+                    '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />' : 
+                    '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />'}
+            </svg>
+            <span class="ml-2">${message}</span>
+        </div>
+    `;
+    
+    // Tambahkan ke container
+    toastContainer.appendChild(toast);
+    
+    // Hapus toast setelah beberapa detik
+    setTimeout(() => {
+        toast.classList.add('animate-fade-out');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// Event listener untuk tombol approve/reject
+document.addEventListener('click', async (e) => {
+    if (e.target.closest('.approve-btn')) {
+        e.preventDefault();
+        const voterId = e.target.closest('form').getAttribute('action').split('/').pop();
+        await handleLoginAction(voterId, 'approve');
+    }
+    
+    if (e.target.closest('.reject-btn')) {
+        e.preventDefault();
+        const voterId = e.target.closest('form').getAttribute('action').split('/').pop();
+        await handleLoginAction(voterId, 'reject');
+    }
+});
+
+// Fungsi untuk pencarian client-side
+function setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', debounce((e) => {
+        const searchValue = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const nik = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+            const nama = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const email = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            
+            if (nik.includes(searchValue) || nama.includes(searchValue) || email.includes(searchValue)) {
+                row.classList.remove('hidden');
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+    }, 300));
+}
+
+// Fungsi debounce untuk search
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// Inisialisasi saat DOM siap
+document.addEventListener('DOMContentLoaded', () => {
+    setupSearch();
+    
+    // Tambahkan container untuk toast jika belum ada
+    if (!document.getElementById('toast-container')) {
+        const toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'fixed bottom-4 right-4 space-y-2 z-50';
+        document.body.appendChild(toastContainer);
+    }
+});
+
+// Style untuk toast notification
+const toastStyles = document.createElement('style');
+toastStyles.textContent = `
+    .toast-success {
+        background-color: #f0fdf4;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.375rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .toast-error {
+        background-color: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.375rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .toast-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+    }
+    
+    .animate-fade-out {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-10px); }
+    }
+`;
+document.head.appendChild(toastStyles);
+</script>
+
+<style>
+    /* Smooth transitions */
+    tr {
+        transition: all 0.2s ease;
+    }
+    
+    /* Modal animations */
+    #voterModal {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    #voterModal:not(.hidden) {
+        opacity: 1;
+    }
+    
+    /* Button hover effects */
+    button {
+        transition: all 0.2s ease;
+    }
+    
+    /* Card hover effects */
+    .hover\\:shadow-lg {
+        transition: box-shadow 0.3s ease;
+    }
+    
+    /* Responsive table */
+    @media (max-width: 768px) {
+        table {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+</style>
+{% endblock %}

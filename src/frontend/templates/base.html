@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Voting System - {% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --primary-light: #8B85FF;
+            --secondary: #FF6584;
+            --accent: #FFB74D;
+            --dark: #2D3748;
+            --light: #F7FAFC;
+        }
+
+        body {
+            background-color: #F9FAFB;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* Elegant gradient background with subtle animation */
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+        }
+
+        /* Modern card styling */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Button styling */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+            border: none;
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.5);
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+        }
+
+        /* Input field styling */
+        .input-field {
+            transition: all 0.3s;
+            border: 2px solid #EDF2F7;
+            background-color: #F7FAFC;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+            background-color: white;
+        }
+
+        /* Navbar styling */
+        nav {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Footer styling */
+        footer {
+            background: linear-gradient(135deg, var(--dark) 0%, #1A202C 100%);
+            margin-top: auto;
+            color: white;
+        }
+
+        /* Floating animation */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Pulse animation */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 3s infinite;
+        }
+
+        /* Glow effect */
+        .glow {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+        }
+
+        /* Modern alert styling */
+        .alert {
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background-color: #ECFDF5;
+            color: #065F46;
+            border-left: 4px solid #10B981;
+        }
+
+        .alert-error {
+            background-color: #FEF2F2;
+            color: #B91C1C;
+            border-left: 4px solid #EF4444;
+        }
+
+        .alert-info {
+            background-color: #EFF6FF;
+            color: #1E40AF;
+            border-left: 4px solid #3B82F6;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100">
+    <!-- Navbar -->
+    <nav class="text-gray-800">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="{{ url_for('dashboard') }}" class="flex items-center space-x-3">
+                <div class="bg-gradient-primary p-3 rounded-full text-white floating">
+                    <i class="fas fa-vote-yea text-xl"></i>
+                </div>
+                <span class="text-2xl font-bold text-gray-800">E-Vote</span>
+            </a>
+            <div class="flex items-center space-x-6">
+                {% if 'voter_data' in session %}
+                <div class="relative" id="profile-dropdown">
+                    <button onclick="toggleDropdown()"
+                        class="flex items-center space-x-2 text-gray-700 hover:text-primary transition focus:outline-none">
+                        <i class="fas fa-user-circle"></i>
+                        <span>{{ session['voter_data']['nama'] }}</span>
+                        <i class="fas fa-chevron-down text-xs" id="dropdown-chevron"></i>
+                    </button>
+                    <div id="dropdown-menu"
+                        class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+                        <a href="{{ url_for('change_password') }}"
+                            class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Change Password</a>
+                        <a href="{{ url_for('logout') }}"
+                            class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Logout</a>
+                    </div>
+                </div>
+                {% elif 'officer_data' in session or 'admin_data' in session %}
+                <a href="{{ url_for('logout') }}"
+                    class="text-gray-700 hover:text-primary transition flex items-center space-x-2 font-medium">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 flex-1">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} mb-6">
+            <i
+                class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-3"></i>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-8 md:mb-0 text-center md:text-left">
+                    <h3 class="text-2xl font-bold text-white mb-4">E-Voting System</h3>
+                    <p class="text-gray-300 max-w-md">Sistem pemilihan elektronik yang aman, transparan, dan terpercaya
+                        untuk demokrasi modern.</p>
+                </div>
+                <div class="flex space-x-8">
+                    <a href="#" class="text-gray-300 hover:text-white transition transform hover:-translate-y-1">
+                        <i class="fab fa-facebook-f text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition transform hover:-translate-y-1">
+                        <i class="fab fa-twitter text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-300 hover:text-white transition transform hover:-translate-y-1">
+                        <i class="fab fa-instagram text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-10 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 E-Voting System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        // Enhanced button animations
+        document.querySelectorAll('button, a.btn').forEach(btn => {
+            btn.addEventListener('mousedown', () => {
+                btn.style.transform = 'translateY(2px)';
+            });
+            btn.addEventListener('mouseup', () => {
+                btn.style.transform = 'translateY(0)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+            });
+        });
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            const chevron = document.getElementById('dropdown-chevron');
+
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                chevron.classList.add('transform', 'rotate-180');
+            } else {
+                dropdown.classList.add('hidden');
+                chevron.classList.remove('transform', 'rotate-180');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (event) {
+            const dropdown = document.getElementById('dropdown-menu');
+            const button = document.querySelector('#profile-dropdown button');
+
+            if (!dropdown.classList.contains('hidden') &&
+                !dropdown.contains(event.target) &&
+                !button.contains(event.target)) {
+                dropdown.classList.add('hidden');
+                document.getElementById('dropdown-chevron').classList.remove('transform', 'rotate-180');
+            }
+        });
+
+        // Modern toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-6 right-6 p-4 rounded-xl shadow-2xl text-white flex items-center z-50 transform transition-all duration-300 ${type === 'success' ? 'bg-gradient-to-r from-green-400 to-green-500' :
+                    type === 'error' ? 'bg-gradient-to-r from-red-400 to-red-500' : 'bg-gradient-to-r from-blue-400 to-blue-500'
+                }`;
+            toast.innerHTML = `
+                <div class="mr-4 text-xl">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' :
+                    type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'
+                }"></i>
+                </div>
+                <div>
+                    <p class="font-semibold">${message}</p>
+                </div>
+                <button class="ml-6 text-white opacity-80 hover:opacity-100 transition" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

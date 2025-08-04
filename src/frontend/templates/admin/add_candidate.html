@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Tambah Kandidat Baru{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold">Tambah Kandidat Baru</h2>
+                    <p class="text-indigo-100">Lengkapi data kandidat pemilihan</p>
+                </div>
+                <div class="bg-white bg-opacity-20 p-3 rounded-full">
+                    <i class="fas fa-user-plus text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="p-8">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-6 p-4 rounded-lg flex items-start
+                            {% if category == 'success' %}bg-green-50 text-green-800 border border-green-200
+                            {% else %}bg-red-50 text-red-800 border border-red-200{% endif %}">
+                            <i class="fas {% if category == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} mt-1 mr-3"></i>
+                            <div>{{ message }}</div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Nama Kandidat -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Nama Kandidat</label>
+                        <input type="text" name="nama" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                            placeholder="Masukkan nama lengkap">
+                    </div>
+
+                    <!-- Partai -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Partai</label>
+                        <input type="text" name="partai" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                            placeholder="Nama partai">
+                    </div>
+
+                    <!-- Nomor Urut -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Nomor Urut</label>
+                        <input type="number" name="nomor_urut" min="1" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                            placeholder="Nomor urut kandidat">
+                    </div>
+
+                    <!-- Foto Kandidat -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Foto Kandidat</label>
+                        <div class="mt-1 flex items-center">
+                            <label class="cursor-pointer">
+                                <div class="group relative">
+                                    <div class="flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg group-hover:border-indigo-500 transition">
+                                        <div class="text-center">
+                                            <i class="fas fa-camera text-3xl text-gray-400 group-hover:text-indigo-500 mb-2"></i>
+                                            <p class="text-sm text-gray-600">Klik untuk memilih foto</p>
+                                            <p class="text-xs text-gray-500 mt-1">Format: JPG/PNG (Max 2MB)</p>
+                                        </div>
+                                    </div>
+                                    <input type="file" name="photo" accept="image/*" class="hidden">
+                                </div>
+                            </label>
+                        </div>
+                        <div id="file-preview" class="hidden mt-3">
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                                <div class="flex items-center">
+                                    <i class="fas fa-image text-indigo-500 mr-3"></i>
+                                    <span id="file-name" class="text-sm font-medium"></span>
+                                </div>
+                                <button type="button" id="remove-file" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <a href="{{ url_for('list_candidates') }}" 
+                       class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition flex items-center">
+                        <i class="fas fa-arrow-left mr-2"></i> Kembali
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center shadow-md hover:shadow-lg">
+                        <i class="fas fa-save mr-2"></i> Simpan Kandidat
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // File upload preview
+    const fileInput = document.querySelector('input[name="photo"]');
+    const filePreview = document.getElementById('file-preview');
+    const fileName = document.getElementById('file-name');
+    const removeFile = document.getElementById('remove-file');
+
+    fileInput.addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            fileName.textContent = this.files[0].name;
+            filePreview.classList.remove('hidden');
+        }
+    });
+
+    removeFile.addEventListener('click', function() {
+        fileInput.value = '';
+        filePreview.classList.add('hidden');
+    });
+</script>
+{% endblock %}
