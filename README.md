@@ -34,7 +34,7 @@ Pemilihan-Umum-Elektronik-dengan-Menggunakan-Kunci-Publik-Infrastruktur/
 
 ## 📊 Arsitektur Sistem 
 
-```text
+```
 Struktur komunikasi antara frontend dan backend pada sistem ini terdiri dari beberapa komponen utama yang berjalan pada port yang berbeda:
 
 Client Side (Frontend – Flask)
