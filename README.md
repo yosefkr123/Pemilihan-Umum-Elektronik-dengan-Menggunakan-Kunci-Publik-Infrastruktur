@@ -136,3 +136,8 @@ python app_admin.py     # port 5002
 - VirtualBox (uji coba 2 VM dalam jaringan host-only)
 
 ---
+
+## 🛡️ License
+
+This project is licensed under the **Creative Commons BY-NC-SA 4.0**.  
+See the [LICENSE.md](./LICENSE.md) file for more details.
