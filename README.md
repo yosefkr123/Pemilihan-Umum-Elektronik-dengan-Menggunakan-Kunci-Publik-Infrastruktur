@@ -1,29 +1,49 @@
 # 🗳️ E-Voting Berbasis Infrastruktur Kunci Publik (PKI)
 
-> Proyek skripsi ini mengimplementasikan sistem pemilihan umum elektronik dengan pendekatan kriptografi asimetris (RSA), tanda tangan digital, dan fungsi hash SHA-256, demi menjamin kerahasiaan, integritas, otentikasi, dan non-repudiasi suara pemilih.
+> Proyek ini mengimplementasikan sistem pemilihan umum elektronik dengan pendekatan kriptografi asimetris (RSA), tanda tangan digital, dan fungsi hash SHA-256, demi menjamin kerahasiaan, integritas, otentikasi, dan non-repudiasi suara pemilih.
+
+---
+
+## 📁 Struktur Folder
+
+```
+Pemilihan-Umum-Elektronik-dengan-Menggunakan-Kunci-Publik-Infrastruktur/
+├── src/
+│   ├── Backend/
+│   │   ├── AuthenticationServer.java
+│   │   ├── VotingServer.java
+│   │   └── TabulasiServer.java
+│   └── Frontend/
+│       ├── app_voter.py
+│       ├── app_officer.py
+│       └── app_admin.py
+```
 
 ---
 
 ## 📌 Fitur Utama
 
-- ✅ Registrasi pemilih dengan pembangkitan pasangan kunci RSA
+- ✅ Registrasi pemilih dengan pembangkitan kunci RSA di browser
 - 🔐 Enkripsi suara dengan RSA 2048-bit
-- ✍️ Tanda tangan digital menggunakan SHA-256 dan kunci privat pemilih
-- 📩 Verifikasi dan pengiriman suara via JSON ke server backend
-- 🔓 Dekripsi dan validasi suara di server petugas sebelum dihitung
-- 🧾 Data dikemas dalam format terenkripsi dan diverifikasi integritasnya
+- ✍️ Tanda tangan digital berbasis SHA-256
+- 📩 Pengiriman suara terenkripsi dalam format JSON
+- 🔓 Dekripsi suara oleh petugas dan verifikasi integritas
+- 📊 Penghitungan suara hanya untuk suara valid
 
 ---
 
-## 🧠 Arsitektur Sistem
+## 📊 Arsitektur Sistem (Diagram Sederhana)
 
-```mermaid
-graph TD
-    A[Client (Browser)] -->|Registrasi| B[Flask (App Voter)]
-    B -->|Public Key| C[Java - Authentication Server]
-    B -->|Encrypted Vote| D[Java - Voting Server]
-    D -->|Decrypted Vote| E[Java - Tabulation Server]
-    E --> F[Database Suara]
+```
++-----------+           +--------------------+          +----------------+
+|  Browser  |   --->    |  Flask (app_voter) |   --->   |  Auth Server   |
+| Pemilih   |           |   Port 5000        |          |  Port 8080     |
++-----------+           +--------------------+          +----------------+
+                                                   ↘
++----------------+       +--------------------+     +----------------+
+| Flask (officer)|  <--> |  Voting Server     | --> | Tabulasi Server|
+| Port 5001      |       |  Port 8081         |     | Port 8082      |
++----------------+       +--------------------+     +----------------+
 ```
 
 **Frontend (Flask)**
@@ -50,32 +70,45 @@ graph TD
 
 ## 💻 Cara Menjalankan Sistem
 
-### 🧪 1. Jalankan Backend (Java)
+### 🧪 1. Clone Repository
 
 ```bash
-cd src/backend
-javac Main.java
-java Main
+git clone https://github.com/username/Pemilihan-Umum-Elektronik-dengan-Menggunakan-Kunci-Publik-Infrastruktur.git
+cd Pemilihan-Umum-Elektronik-dengan-Menggunakan-Kunci-Publik-Infrastruktur/src
 ```
 
-### 🧪 2. Jalankan Frontend (Flask)
+### 🧪 2. Jalankan Backend (Java)
 
 ```bash
-cd src/frontend/app_voter
-python app_voter.py
+cd Backend
+javac AuthenticationServer.java VotingServer.java TabulasiServer.java
+java AuthenticationServer
+java VotingServer
+java TabulasiServer
 ```
 
-> ⚠️ Pastikan `Flask`, `cryptography`, dan `requests` sudah terinstal.
+### 🧪 3. Jalankan Frontend (Flask)
+
+```bash
+cd ../Frontend
+
+# Di terminal terpisah untuk setiap app
+python app_voter.py     # port 5000
+python app_officer.py   # port 5001
+python app_admin.py     # port 5002
+```
+
+> ⚠️ Pastikan `Flask`, `cryptography`, dan `requests` telah terinstal.
 
 ---
 
-## 🔎 Alur Singkat Proses Voting
+## 🔄 Alur Proses Voting
 
-1. Pemilih mengisi form registrasi → RSA Keypair terbentuk di browser
-2. Public key dikirim ke server → private key disimpan oleh pemilih
-3. Pemilih login menggunakan private key → sistem memverifikasi signature
-4. Pemilih memilih kandidat → data di-hash dan dienkripsi
-5. Vote terkirim ke server → didekripsi dan dihitung jika valid
+1. **Registrasi:** Pemilih membuat pasangan kunci RSA langsung di browser.
+2. **Verifikasi:** Tanda tangan digital dibuat dengan private key, diverifikasi oleh server.
+3. **Voting:** Suara di-hash dan dienkripsi, dikirim sebagai JSON ke server.
+4. **Dekripsi & Validasi:** Petugas mendekripsi suara dan memverifikasi integritas.
+5. **Tabulasi:** Hanya suara sah yang dihitung dan disimpan.
 
 ---
 
@@ -92,7 +125,7 @@ python app_voter.py
 
 - Python (Flask, Cryptography)
 - Java (Socket Server)
-- SHA-256, RSA (PyCA & BouncyCastle)
+- SHA-256, RSA
 - Wireshark (untuk analisis jaringan)
 - VirtualBox (uji coba 2 VM dalam jaringan host-only)
 
