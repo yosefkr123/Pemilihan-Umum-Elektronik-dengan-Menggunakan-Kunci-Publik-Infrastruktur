@@ -34,17 +34,27 @@ Pemilihan-Umum-Elektronik-dengan-Menggunakan-Kunci-Publik-Infrastruktur/
 
 ## 📊 Arsitektur Sistem (Diagram Sederhana)
 
-```
-+-----------+           +--------------------+          +----------------+
-|  Browser  |   --->    |  Flask (app_voter) |   --->   |  Auth Server   |
-| Pemilih   |           |   Port 5000        |          |  Port 8080     |
-+-----------+           +--------------------+          +----------------+
-                                                   ↘
-+----------------+       +--------------------+     +----------------+
-| Flask (officer)|  <--> |  Voting Server     | --> | Tabulasi Server|
-| Port 5001      |       |  Port 8081         |     | Port 8082      |
-+----------------+       +--------------------+     +----------------+
-```
+```mermaid
+flowchart TD
+    subgraph Client
+        A[Browser (Pemilih)]
+    end
+
+    subgraph Frontend
+        B[Flask - app_voter\nPort 5000]
+        C[Flask - app_officer\nPort 5001]
+        D[Flask - app_admin\nPort 5002]
+    end
+
+    subgraph Backend
+        E[Authentication Server\nPort 8080]
+        F[Voting Server\nPort 8081]
+        G[Tabulasi Server\nPort 8082]
+    end
+
+    A --> B --> E
+    C <--> F --> G
+
 
 **Frontend (Flask)**
 - `app_voter` → port 5000  
