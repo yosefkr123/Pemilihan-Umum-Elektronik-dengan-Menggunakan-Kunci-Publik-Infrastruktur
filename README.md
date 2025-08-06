@@ -38,23 +38,23 @@ Struktur komunikasi antara frontend dan backend pada sistem ini terdiri dari beb
 
 **Client Side (Frontend – Flask)**
 - `app_voter.py`   → `Port 5000`
-  → Menyediakan antarmuka untuk pemilih melakukan registrasi, login, dan pemungutan suara.
+  Menyediakan antarmuka untuk pemilih melakukan registrasi, login, dan pemungutan suara.
 
 - `app_officer.py` → `Port 5001`
-  → Digunakan oleh petugas untuk menerima dan memproses suara terenkripsi.
+  Digunakan oleh petugas untuk menerima dan memproses suara terenkripsi.
 
 - `app_admin.py`   → `Port 5002`
-  → Digunakan oleh admin untuk melihat hasil tabulasi suara dan manajemen data.
+  Digunakan oleh admin untuk melihat hasil tabulasi suara dan manajemen data.
 
 **Server Side (Backend – Java Socket Server)**
 - `Authentication Server` → `Port 8080`
-  → Menerima data registrasi dan proses verifikasi identitas pemilih.
+  Menerima data registrasi dan proses verifikasi identitas pemilih.
 
 - `Voting Server`         → `Port 8081`
-  → Menerima suara terenkripsi dan menyimpan suara yang telah tervalidasi.
+  Menerima suara terenkripsi dan menyimpan suara yang telah tervalidasi.
 
 - `Tabulasi Server`       → `Port 8082`
-  → Menghitung dan menyajikan hasil akhir pemungutan suara berdasarkan suara yang sah.
+  Menghitung dan menyajikan hasil akhir pemungutan suara berdasarkan suara yang sah.
 
 Komunikasi antar Komponen
 - Pemilih mengakses aplikasi via browser ke app_voter.py
