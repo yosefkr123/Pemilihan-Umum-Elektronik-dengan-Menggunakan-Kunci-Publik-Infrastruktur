@@ -37,17 +37,18 @@ Pemilihan-Umum-Elektronik-dengan-Menggunakan-Kunci-Publik-Infrastruktur/
 ```mermaid
 flowchart TD
     A[Browser (Pemilih)]
-    B[Flask - app_voter<br>Port 5000]
-    C[Authentication Server<br>Port 8080]
-    D[Flask - app_officer<br>Port 5001]
-    E[Voting Server<br>Port 8081]
-    F[Tabulasi Server<br>Port 8082]
-    G[Flask - app_admin<br>Port 5002]
+    B[Flask app_voter<br/>Port 5000]
+    C[Authentication Server<br/>Port 8080]
+    D[Flask app_officer<br/>Port 5001]
+    E[Voting Server<br/>Port 8081]
+    F[Tabulasi Server<br/>Port 8082]
+    G[Flask app_admin<br/>Port 5002]
 
     A --> B --> C
     D <--> E --> F
-    G --> F
+    G --> E
 ```
+
 
 
 **Frontend (Flask)**
