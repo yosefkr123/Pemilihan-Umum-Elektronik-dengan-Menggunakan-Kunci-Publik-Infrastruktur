@@ -56,7 +56,7 @@ Struktur komunikasi antara frontend dan backend pada sistem ini terdiri dari beb
 - `Tabulasi Server`       → `Port 8082`
   Menghitung dan menyajikan hasil akhir pemungutan suara berdasarkan suara yang sah.
 
-Komunikasi antar Komponen
+**Komunikasi antar Komponen**
 - Pemilih mengakses aplikasi via browser ke app_voter.py
 - Flask frontend mengirim data melalui HTTP (format JSON) ke server Java
 
