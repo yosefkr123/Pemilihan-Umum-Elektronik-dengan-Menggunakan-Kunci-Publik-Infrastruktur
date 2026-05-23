@@ -33,7 +33,7 @@ public class DatabaseHelper {
 
     private static final String DB_URL = "jdbc:sqlite:evoting.db";
     private static Connection connection;
-    private static final String ADMIN_EMAIL = "yosefgrogot123@gmail.com";
+    private static final String ADMIN_EMAIL = "";
 
     static {
         try {
